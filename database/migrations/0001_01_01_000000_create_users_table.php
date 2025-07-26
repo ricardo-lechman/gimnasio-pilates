@@ -13,26 +13,13 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-
-            $table->string('name');                    // Nombre
-            $table->string('apellido');                // Apellido
+            $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password')->nullable();    // Puede ser null si se registra con Google
-
-            $table->string('telefono')->nullable();
-            $table->string('dni')->nullable();
-            $table->string('obra_social')->nullable();
-            $table->text('ficha_medica')->nullable();  // Detalles médicos opcionales
-            $table->string('google_id')->nullable();   // ID de Google si inicia sesión por Google
-            $table->string('role')->default('user');   // 'user' o 'admin'
-
+            $table->string('password');
             $table->rememberToken();
-
-            // Si estás usando Jetstream con Teams, podés dejar esto:
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
-
             $table->timestamps();
         });
 
@@ -60,7 +47,5 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
- 
- 
     }
 };
