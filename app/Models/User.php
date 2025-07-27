@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -10,30 +10,30 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, HasProfilePhoto, Notifiable, TwoFactorAuthenticatable;
+    use HasApiTokens;
+    use HasFactory;
+    use HasProfilePhoto;
+    use Notifiable;
+    use TwoFactorAuthenticatable;
 
     /**
      * Los atributos que se pueden asignar masivamente.
+     *
+     * @var array<int, string>
      */
     protected $fillable = [
         'name',
-        'apellido',
         'email',
         'password',
-        'telefono',
-        'dni',
-        'obra_social',
-        'ficha_medica',
-        'google_id',
-        'role',
-        'current_team_id',
-        'profile_photo_path',
+        'role', // agregado para permitir asignación masiva
     ];
 
     /**
-     * Los atributos que deben ocultarse en arrays.
+     * Los atributos que deben estar ocultos para la serialización.
+     *
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -43,7 +43,9 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
-     * Los atributos que deben castearse.
+     * Los atributos que deben ser convertidos a tipos nativos.
+     *
+     * @return array<string, string>
      */
     protected function casts(): array
     {
@@ -54,30 +56,22 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Accesores personalizados.
+     * Los atributos adicionales para la representación en array del modelo.
+     *
+     * @var array<int, string>
      */
     protected $appends = [
         'profile_photo_url',
     ];
 
     /**
-     * Relaciones con otros modelos.
+     * Verifica si el usuario tiene el rol especificado.
+     *
+     * @param string $role
+     * @return bool
      */
-    public function bookings()
+    public function hasRole(string $role): bool
     {
-        return $this->hasMany(Booking::class);
-    }
-
-    public function payments()
-    {
-        return $this->hasMany(Payment::class);
-    }
-
-    /**
-     * Verifica si el usuario es administrador.
-     */
-    public function isAdmin()
-    {
-        return $this->role === 'admin';
+        return $this->role === $role;
     }
 }

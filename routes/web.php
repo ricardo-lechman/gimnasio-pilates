@@ -29,4 +29,10 @@ Route::get('/', function () {
             return Inertia::render('Admin/Dashboard');
         })->name('admin.dashboard');
     });
+
+
+    Route::middleware(['auth', 'role:user'])->get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+    
 });
