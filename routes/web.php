@@ -24,15 +24,17 @@ Route::get('/', function () {
     });
 
     // Rutas para administradores
-    Route::middleware(['auth', 'role:admin'])->group(function () {
-        Route::get('/admin', function () {
-            return Inertia::render('Admin/Dashboard');
-        })->name('admin.dashboard');
-    });
+ Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/admin', function () {
+        return Inertia::render('Admin/Dashboard');
+    })->name('admin.dashboard');
+});
 
 
     Route::middleware(['auth', 'role:user'])->get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
-    
 });
+
+
+
