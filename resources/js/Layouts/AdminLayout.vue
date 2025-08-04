@@ -1,15 +1,34 @@
-<template>
-  <div class="min-h-screen bg-gray-100">
-    <header class="bg-white shadow">
-      <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <h1 class="text-2xl font-bold text-gray-800">Panel de Administración</h1>
-      </div>
-    </header>
+<script setup>
+import { Head, Link } from '@inertiajs/vue3';
+</script>
 
-    <main class="py-8">
-      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <slot />
-      </div>
-    </main>
-  </div>
+<template>
+    <div>
+        <Head :title="title" />
+
+        <header class="bg-gray-800 text-white p-4">
+            <h1 class="text-xl">Panel de Administración</h1>
+            <nav class="mt-2">
+                <Link href="/admin" class="mr-4">Dashboard</Link>
+                <Link href="/admin/usuarios" class="mr-4">Usuarios</Link>
+                <Link href="/admin/turnos" class="mr-4">Turnos</Link>
+            </nav>
+        </header>
+
+        <main class="p-6">
+            <slot />
+        </main>
+    </div>
 </template>
+
+<script>
+export default {
+    props: {
+        title: {
+            type: String,
+            default: 'Admin',
+        },
+    },
+};
+</script>
+
