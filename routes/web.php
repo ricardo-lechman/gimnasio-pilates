@@ -3,7 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Models\User;
+use App\Http\Controllers\Admin\UserController;
 
 // Página de bienvenida
 Route::get('/', function () {
@@ -32,11 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', fn () => Inertia::render('Admin/Dashboard'))->name('dashboard');
 
         // Gestión de usuarios
-        Route::get('/usuarios', fn () =>
-            Inertia::render('Admin/Users/Index', [
-                'users' => User::all(['id', 'name', 'email', 'role']),
-            ])
-        )->name('usuarios');
+        Route::get('/usuarios', [UserController::class, 'index'])->name('usuarios');
 
         // Gestión de turnos/reservas
         Route::get('/reservas', fn () =>
@@ -67,6 +63,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
         )->name('estadisticas.index');
     });
 });
-
 
 
