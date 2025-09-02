@@ -32,7 +32,7 @@ class UserController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        return redirect()->back()->with('success', 'Usuario creado correctamente.');
+        return back()->with('flash', ['message' => 'Usuario creado correctamente.']);
     }
 
     public function update(Request $request, User $user)
@@ -40,21 +40,28 @@ class UserController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:6',
         ]);
 
-        $user->update([
+        $dataToUpdate = [
             'name' => $validated['nombre'],
             'email' => $validated['email'],
-            'role' => 'User', // Mantener rol fijo "User"
-        ]);
+            'role' => 'User',
+        ];
 
-        return redirect()->back()->with('success', 'Usuario actualizado correctamente.');
+        if (!empty($validated['password'])) {
+            $dataToUpdate['password'] = Hash::make($validated['password']);
+        }
+
+        $user->update($dataToUpdate);
+
+        return back()->with('flash', ['message' => 'Usuario actualizado correctamente.']);
     }
 
     public function destroy(User $user)
     {
         $user->delete();
 
-        return redirect()->back()->with('success', 'Usuario eliminado correctamente.');
+        return back()->with('flash', ['message' => 'Usuario eliminado correctamente.']);
     }
 }

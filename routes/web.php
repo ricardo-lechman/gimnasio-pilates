@@ -15,6 +15,11 @@ Route::get('/', function () {
     ]);
 });
 
+// Ruta para redirigir /dashboard a /admin/dashboard y evitar 404
+Route::middleware(['auth', 'verified'])->get('/dashboard', function () {
+    return redirect()->route('admin.dashboard');
+})->name('dashboard');
+
 // Rutas protegidas por autenticación y verificación de email
 Route::middleware(['auth', 'verified'])->group(function () {
 
