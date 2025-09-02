@@ -18,50 +18,36 @@ Route::get('/', function () {
 // Rutas protegidas por autenticación y verificación de email
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // Rutas del usuario normal (rol: user)
-    Route::middleware('role:user')->group(function () {
-        Route::get('/dashboard', function () {
-            return Inertia::render('User/Dashboard');
-        })->name('dashboard');
-    });
-
     // Rutas del panel de administración (rol: admin)
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
 
-        // Panel principal
-        Route::get('/', fn () => Inertia::render('Admin/Dashboard'))->name('dashboard');
+        // Dashboard principal del admin
+        Route::get('/dashboard', fn () => Inertia::render('Admin/Dashboard'))->name('dashboard');
 
         // Gestión de usuarios
-        Route::get('/usuarios', [UserController::class, 'index'])->name('usuarios');
+        Route::get('/users', [UserController::class, 'index'])->name('users');
+        Route::post('/users', [UserController::class, 'store'])->name('users.store');
+        Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
         // Gestión de turnos/reservas
-        Route::get('/reservas', fn () =>
-            Inertia::render('Admin/Reservas/Index')
-        )->name('reservas.index');
-
-        Route::get('/reservas/{id}', fn ($id) =>
-            Inertia::render('Admin/Reservas/Show', ['id' => $id])
-        )->name('reservas.show');
+        Route::get('/reservas', fn () => Inertia::render('Admin/Reservas/Index'))->name('reservas.index');
+        Route::get('/reservas/{id}', fn ($id) => Inertia::render('Admin/Reservas/Show', ['id' => $id]))->name('reservas.show');
 
         // Gestión de pagos
-        Route::get('/pagos', fn () =>
-            Inertia::render('Admin/Pagos/Index')
-        )->name('pagos.index');
+        Route::get('/pagos', fn () => Inertia::render('Admin/Pagos/Index'))->name('pagos.index');
+        Route::get('/pagos/{id}', fn ($id) => Inertia::render('Admin/Pagos/Show', ['id' => $id]))->name('pagos.show');
 
-        Route::get('/pagos/{id}', fn ($id) =>
-            Inertia::render('Admin/Pagos/Show', ['id' => $id])
-        )->name('pagos.show');
+        // Configuración de camas
+        Route::get('/cama', fn () => Inertia::render('Admin/Cama/Index'))->name('cama.index');
+
+        // Configuración de cronogramas
+        Route::get('/cronograma', fn () => Inertia::render('Admin/Cronograma/Index'))->name('cronograma.index');
 
         // Configuración general del sistema
-        Route::get('/configuracion', fn () =>
-            Inertia::render('Admin/Configuracion/Index')
-        )->name('configuracion.index');
+        Route::get('/configuracion', fn () => Inertia::render('Admin/Configuracion/Index'))->name('configuracion.index');
 
         // Estadísticas o reportes
-        Route::get('/estadisticas', fn () =>
-            Inertia::render('Admin/Estadisticas/Index')
-        )->name('estadisticas.index');
+        Route::get('/estadisticas', fn () => Inertia::render('Admin/Estadisticas/Index'))->name('estadisticas.index');
     });
 });
-
-
