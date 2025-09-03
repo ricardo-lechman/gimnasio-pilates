@@ -1,7 +1,7 @@
 <?php
 
 // database/seeders/CronogramaSeeder.php
-
+namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Cronograma;
 use Carbon\Carbon;
@@ -14,8 +14,8 @@ class CronogramaSeeder extends Seeder
         $horaInicio = Carbon::createFromTime(8, 0, 0); // Primer turno: 08:00
 
         for ($i = 0; $i < 8; $i++) {
-            $inicio = $horaInicio->copy()->addMinutes(90 * $i);
-            $fin = $inicio->copy()->addMinutes(90);
+            $inicio = $horaInicio->copy()->addMinutes(60 * $i);
+            $fin = $inicio->copy()->addMinutes(60);
 
             Cronograma::create([
                 'date' => $fecha,
