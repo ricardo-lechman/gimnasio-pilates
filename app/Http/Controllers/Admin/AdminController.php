@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
-class UserController extends Controller
+class AdminController extends Controller
 {
     public function index()
     {
@@ -28,7 +28,7 @@ class UserController extends Controller
         User::create([
             'name' => $validated['nombre'],
             'email' => $validated['email'],
-            'role' => 'User', // Rol fijo "User"
+            'role' => 'user', // Rol fijo "User"
             'password' => Hash::make($validated['password']),
         ]);
 
@@ -46,7 +46,7 @@ class UserController extends Controller
         $dataToUpdate = [
             'name' => $validated['nombre'],
             'email' => $validated['email'],
-            'role' => 'User',
+            'role' => 'user',
         ];
 
         if (!empty($validated['password'])) {
