@@ -6,14 +6,19 @@ use Inertia\Inertia;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\User\UserController;
 
-// Página de bienvenida
+// Página de inicio: login si no hay sesión, dashboard según rol si está autenticado
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    if (auth()->check()) {
+        $user = auth()->user();
+
+        return match (strtolower($user->role)) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'user'  => redirect()->route('users.dashboardusers'),
+            default => abort(403, 'Acceso no autorizado'),
+        };
+    }
+
+    return redirect()->route('login');
 });
 
 // Redirección según rol después de login
