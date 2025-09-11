@@ -1,7 +1,7 @@
 <?php
 
 // database/seeders/CronogramaSeeder.php
-
+namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Cronograma;
 use Carbon\Carbon;
@@ -25,5 +25,3 @@ class CronogramaSeeder extends Seeder
         }
     }
 }
-
-
