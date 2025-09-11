@@ -1,11 +1,13 @@
-<template>
-    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-        <div>
-            <slot name="logo" />
-        </div>
+<script setup></script>
 
-        <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-            <slot />
-        </div>
+<template>
+  <div class="max-w-md mx-auto mt-10 sm:mt-20">
+    <div class="flex justify-center mb-4">
+      <slot name="logo" />
     </div>
+
+    <div class="bg-white shadow-md rounded-lg px-6 py-8">
+      <slot />
+    </div>
+  </div>
 </template>
