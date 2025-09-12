@@ -20,6 +20,12 @@ return new class extends Migration
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
+            $table->string('role')->default('user');
+            $table->string('telefono')->nullable();
+            $table->string('dni')->nullable();
+            $table->string('obra_social')->nullable();
+            $table->text('ficha_medica')->nullable();
+
             $table->timestamps();
         });
 
@@ -44,8 +50,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };

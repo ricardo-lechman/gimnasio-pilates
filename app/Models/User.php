@@ -27,7 +27,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role', // agregado para permitir asignación masiva
+        'role',
+        'telefono',
+        'dni',
+        'obra_social',
+        'ficha_medica',
     ];
 
     /**
@@ -75,3 +79,4 @@ class User extends Authenticatable
         return $this->role === $role;
     }
 }
+
