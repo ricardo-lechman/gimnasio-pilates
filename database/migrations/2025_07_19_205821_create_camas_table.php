@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('camas', function (Blueprint $table) {
             $table->id();
             $table->string('nombre'); // Ej: "Cama 1"
+            $table->enum('estado', ['disponible', 'ocupada', 'mantenimiento'])->default('disponible');
             $table->timestamps();
         });
     }

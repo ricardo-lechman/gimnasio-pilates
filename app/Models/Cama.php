@@ -2,18 +2,27 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Cama extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nombre'];
+    /**
+     * Campos que se pueden asignar masivamente
+     */
+    protected $fillable = [
+        'nombre',
+        'estado',
+    ];
 
-    // Relaciones
+    /**
+     * Relación: una cama puede tener muchas reservas
+     */
     public function reservas()
     {
-        return $this->hasMany(reserva::class);
+        return $this->hasMany(Reserva::class);
     }
 }
+

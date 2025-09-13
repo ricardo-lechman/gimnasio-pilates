@@ -16,9 +16,9 @@ return new class extends Migration
             $table->foreignId('reserva_id')->constrained()->onDelete('cascade');
             $table->string('file_path')->nullable(); // ruta del comprobante subido
             $table->boolean('verified')->default(false);
+            $table->string('status')->default('pendiente'); // campo agregado
             $table->timestamps();
         });
-        
     }
 
     /**

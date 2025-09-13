@@ -1,33 +1,55 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-abstract class Controller
-{
-
-namespace App\Http\Controllers;
-
+use App\Http\Controllers\Controller;
 use App\Models\Cama;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class CamaController extends Controller
 {
     public function index()
     {
-        return Cama::all();
+        return Inertia::render('Admin/Camas/Index', [
+            'camas' => Cama::select('id', 'nombre', 'estado', 'created_at', 'updated_at')->get(),
+        ]);
     }
 
     public function store(Request $request)
     {
-        $request->validate(['nombre' => 'required|string|max:255']);
-        return Cama::create($request->only('nombre'));
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'estado' => 'required|string|max:50',
+        ]);
+
+        Cama::create($validated);
+
+        return redirect()
+            ->route('admin.camas.index')
+            ->with('success', 'Cama creada con éxito.');
     }
 
-    public function destroy(Cama $Cama)
+    public function update(Request $request, Cama $cama)
     {
-        $Cama->delete();
-        return response()->noContent();
-    }
-}
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'estado' => 'required|string|max:50',
+        ]);
 
+        $cama->update($validated);
+
+        return redirect()
+            ->route('admin.camas.index')
+            ->with('success', 'Cama actualizada.');
+    }
+
+    public function destroy(Cama $cama)
+    {
+        $cama->delete();
+
+        return redirect()
+            ->route('admin.camas.index')
+            ->with('success', 'Cama eliminada.');
+    }
 }

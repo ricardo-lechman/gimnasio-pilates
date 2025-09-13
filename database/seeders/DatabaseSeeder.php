@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
         CamaSeeder::class,
         CronogramaSeeder::class,
         AdminUserSeeder::class,
+        ReservaSeeder::class,
+        PagosSeeder::class,
     ]);
 }
 }

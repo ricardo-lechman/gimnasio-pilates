@@ -3,21 +3,21 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Pagos;
-use App\Models\Reservas;
+use App\Models\Pago;
+use App\Models\Reserva;
 
 class PagosSeeder extends Seeder
 {
     public function run(): void
     {
-        $reservas = Reservas::all(); //  todas las reservas
+        $reserva = Reserva::all(); //  todas las reservas
 
-        foreach ($reservas as $reserva) {
+        foreach ($reserva as $reserva) {
             $statusPago = collect(['pendiente', 'completado', 'rechazado'])->random();
 
-            $pago = Pagos::create([
+            $pago = Pago::create([
                 'reserva_id'  => $reserva->id,
-                'file_varchar'=> 'comprobante_' . $reserva->id . '.pdf', 
+                'file_path'  => 'comprobante_1.pdf',
                 'verified'    => rand(0,1), 
                 'status'      => $statusPago,
                 'created_at'  => now(),
@@ -25,9 +25,9 @@ class PagosSeeder extends Seeder
             ]);
 
             if ($statusPago === 'completado') {
-                $reserva->status = 'confirmada';
+                $reserva->status = 'confirmado';
             } elseif ($statusPago === 'rechazado') {
-                $reserva->status = 'cancelada';
+                $reserva->status = 'cancelado';
             } else {
                 $reserva->status = 'pendiente';
             }

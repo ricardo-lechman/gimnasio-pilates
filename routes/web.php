@@ -53,6 +53,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/pagos', fn () => Inertia::render('Admin/Pagos/Index'))->name('pagos.index');
         Route::get('/pagos/{id}', fn ($id) => Inertia::render('Admin/Pagos/Show', ['id' => $id]))->name('pagos.show');
 
+        // CRUD de camas
+        Route::get('/camas', [\App\Http\Controllers\Admin\CamaController::class, 'index'])->name('camas.index');
+        Route::post('/camas', [\App\Http\Controllers\Admin\CamaController::class, 'store'])->name('camas.store');
+        Route::put('/camas/{cama}', [\App\Http\Controllers\Admin\CamaController::class, 'update'])->name('camas.update');
+        Route::delete('/camas/{cama}', [\App\Http\Controllers\Admin\CamaController::class, 'destroy'])->name('camas.destroy');
+
+
         // Otras secciones
         Route::get('/cama', fn () => Inertia::render('Admin/Cama/Index'))->name('cama.index');
         Route::get('/cronograma', fn () => Inertia::render('Admin/Cronograma/Index'))->name('cronograma.index');
