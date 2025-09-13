@@ -9,17 +9,8 @@ class Cama extends Model
 {
     use HasFactory;
 
-    /**
-     * Campos que se pueden asignar masivamente
-     */
-    protected $fillable = [
-        'nombre',
-        'estado',
-    ];
+    protected $fillable = ['nombre', 'estado'];
 
-    /**
-     * Relación: una cama puede tener muchas reservas
-     */
     public function reservas()
     {
         return $this->hasMany(Reserva::class);

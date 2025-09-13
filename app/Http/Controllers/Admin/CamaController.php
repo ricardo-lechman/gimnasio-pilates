@@ -11,8 +11,11 @@ class CamaController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Admin/Camas/Index', [
-            'camas' => Cama::select('id', 'nombre', 'estado', 'created_at', 'updated_at')->get(),
+        // Trae todas las camas
+        $camas = Cama::all(); 
+
+        return Inertia::render('Admin/Cama/Index', [
+            'camas' => $camas
         ]);
     }
 
@@ -25,9 +28,8 @@ class CamaController extends Controller
 
         Cama::create($validated);
 
-        return redirect()
-            ->route('admin.camas.index')
-            ->with('success', 'Cama creada con éxito.');
+        return redirect()->route('admin.camas.index')
+                         ->with('success', 'Cama creada con éxito.');
     }
 
     public function update(Request $request, Cama $cama)
@@ -39,17 +41,15 @@ class CamaController extends Controller
 
         $cama->update($validated);
 
-        return redirect()
-            ->route('admin.camas.index')
-            ->with('success', 'Cama actualizada.');
+        return redirect()->route('admin.camas.index')
+                         ->with('success', 'Cama actualizada.');
     }
 
     public function destroy(Cama $cama)
     {
         $cama->delete();
 
-        return redirect()
-            ->route('admin.camas.index')
-            ->with('success', 'Cama eliminada.');
+        return redirect()->route('admin.camas.index')
+                         ->with('success', 'Cama eliminada.');
     }
 }

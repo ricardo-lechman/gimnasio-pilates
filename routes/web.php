@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\Admin\CamaController;
 
 // Página de inicio: login si no hay sesión, dashboard según rol si está autenticado
 Route::get('/', function () {
@@ -53,11 +54,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/pagos', fn () => Inertia::render('Admin/Pagos/Index'))->name('pagos.index');
         Route::get('/pagos/{id}', fn ($id) => Inertia::render('Admin/Pagos/Show', ['id' => $id]))->name('pagos.show');
 
-        // CRUD de camas
-        Route::get('/camas', [\App\Http\Controllers\Admin\CamaController::class, 'index'])->name('camas.index');
-        Route::post('/camas', [\App\Http\Controllers\Admin\CamaController::class, 'store'])->name('camas.store');
-        Route::put('/camas/{cama}', [\App\Http\Controllers\Admin\CamaController::class, 'update'])->name('camas.update');
-        Route::delete('/camas/{cama}', [\App\Http\Controllers\Admin\CamaController::class, 'destroy'])->name('camas.destroy');
+        //Camas
+        Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+            Route::get('/camas', [CamaController::class, 'index'])->name('camas.index');
+            Route::post('/camas', [CamaController::class, 'store'])->name('camas.store');
+            Route::put('/camas/{cama}', [CamaController::class, 'update'])->name('camas.update');
+            Route::delete('/camas/{cama}', [CamaController::class, 'destroy'])->name('camas.destroy');
+        });
 
 
         // Otras secciones
