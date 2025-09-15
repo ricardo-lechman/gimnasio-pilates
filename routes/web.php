@@ -53,14 +53,31 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Pagos
         Route::get('/pagos', fn () => Inertia::render('Admin/Pagos/Index'))->name('pagos.index');
         Route::get('/pagos/{id}', fn ($id) => Inertia::render('Admin/Pagos/Show', ['id' => $id]))->name('pagos.show');
-
-        //Camas
-        Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-            Route::get('/camas', [CamaController::class, 'index'])->name('camas.index');
-            Route::post('/camas', [CamaController::class, 'store'])->name('camas.store');
-            Route::put('/camas/{cama}', [CamaController::class, 'update'])->name('camas.update');
-            Route::delete('/camas/{cama}', [CamaController::class, 'destroy'])->name('camas.destroy');
         });
+        // ...
+Route::middleware(['auth', 'verified'])->group(function () {
+    // RUTAS PARA ADMINISTRADOR
+    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', fn () => Inertia::render('Admin/Dashboard'))->name('dashboard');
+
+        // Gestión de usuarios
+        Route::get('/users', [AdminController::class, 'index'])->name('users');
+        Route::post('/users', [AdminController::class, 'store'])->name('users.store');
+        Route::put('/users/{user}', [AdminController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [AdminController::class, 'destroy'])->name('users.destroy');
+
+        // Gestión de Camas (CORREGIDO)
+        Route::get('/camas', [CamaController::class, 'index'])->name('camas.index');
+        Route::post('/camas', [CamaController::class, 'store'])->name('camas.store');
+        Route::put('/camas/{cama}', [CamaController::class, 'update'])->name('camas.update');
+        Route::delete('/camas/{cama}', [CamaController::class, 'destroy'])->name('camas.destroy');
+
+        // ... resto de rutas de admin
+    });
+
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('cama', CamaController::class);
+    });
 
 
         // Otras secciones

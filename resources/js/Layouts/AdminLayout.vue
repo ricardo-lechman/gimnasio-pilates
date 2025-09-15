@@ -35,11 +35,9 @@ const logout = () => {
             <nav class="mt-2 flex flex-wrap space-x-4">
                 <Link href="/admin/configuracion">Dashboard</Link>
                 <Link href="/admin/users">Usuarios</Link>
-                <Link href="/admin/cronograma">Turnos</Link>
                 <Link href="/admin/pagos">Pagos</Link>
                 <Link href="/admin/reservas">Reservas</Link>
                 <Link href="/admin/cama">Cama</Link>
-                <Link href="/admin/estadisticas">Estadísticas</Link>
             </nav>
 
             <!-- Hamburger / menú responsive -->
@@ -52,11 +50,9 @@ const logout = () => {
                 <div v-show="showingNavigationDropdown" class="mt-2 flex flex-col space-y-2">
                     <Link href="/admin/configuracion">Dashboard</Link>
                     <Link href="/admin/users">Usuarios</Link>
-                    <Link href="/admin/cronograma">Turnos</Link>
                     <Link href="/admin/pagos">Pagos</Link>
                     <Link href="/admin/reservas">Reservas</Link>
                     <Link href="/admin/cama">Cama</Link>
-                    <Link href="/admin/estadisticas">Estadísticas</Link>
 
                     <!-- 🔹 Logout en responsive -->
                     <button @click="logout" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded mt-2">
