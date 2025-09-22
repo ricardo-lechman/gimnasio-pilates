@@ -16,12 +16,13 @@ class Pago extends Model
         'metodo_pago',
         'comprobante',
         'fecha_pago',
+        'estado',
     ];
 
     // Relaciones
     public function reserva()
     {
-        return $this->belongsTo(reserva::class);
+        return $this->belongsTo(Reserva::class);
     }
 
     public function user()
@@ -29,3 +30,4 @@ class Pago extends Model
         return $this->belongsTo(User::class);
     }
 }
+

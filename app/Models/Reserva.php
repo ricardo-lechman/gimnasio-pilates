@@ -11,9 +11,9 @@ class Reserva extends Model
 
     protected $fillable = [
         'user_id',
-        'Cama_id',
-        'cronograma_id',
-        'status',
+        'cama_id',
+        'fecha',
+        'estado',
     ];
 
     // Relaciones
@@ -22,18 +22,8 @@ class Reserva extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function Cama()
+    public function cama()
     {
         return $this->belongsTo(Cama::class);
-    }
-
-    public function cronograma()
-    {
-        return $this->belongsTo(Cronograma::class);
-    }
-
-    public function pago()
-    {
-        return $this->hasOne(pago::class);
     }
 }

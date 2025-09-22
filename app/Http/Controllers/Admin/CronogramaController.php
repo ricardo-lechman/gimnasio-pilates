@@ -1,16 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-abstract class Controller
-{
-
-
-
-namespace App\Http\Controllers;
-
+use App\Http\Controllers\Controller;
 use App\Models\Cronograma;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class CronogramaController extends Controller
 {
@@ -28,7 +23,4 @@ class CronogramaController extends Controller
         ]);
         return Cronograma::create($request->all());
     }
-}
-
-
 }
