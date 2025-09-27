@@ -1,15 +1,20 @@
 <script setup>
-import { ref } from "vue";
-import { router } from "@inertiajs/vue3";
 import AdminLayout from "@/Layouts/AdminLayout.vue";
+import { Head, router } from "@inertiajs/vue3";
+import { ref, reactive } from "vue";
 
-defineProps({
+const props = defineProps({
   pagos: Array,
   usuarios: Array,
   reservas: Array,
 });
 
-const form = ref({
+const selectedPago = ref(null);
+
+const showAddModal = ref(false);
+const showEditModal = ref(false);
+
+const form = reactive({
   user_id: "",
   reserva_id: "",
   monto: "",
@@ -19,124 +24,298 @@ const form = ref({
   estado: "pendiente",
 });
 
-function submit() {
-  if (!form.value.user_id || !form.value.reserva_id || !form.value.monto || !form.value.metodo_pago || !form.value.fecha_pago) {
-    alert("Todos los campos obligatorios deben completarse");
-    return;
-  }
+const openAddModal = () => {
+  Object.assign(form, {
+    user_id: "",
+    reserva_id: "",
+    monto: "",
+    metodo_pago: "",
+    comprobante: null,
+    fecha_pago: "",
+    estado: "pendiente",
+  });
+  showAddModal.value = true;
+};
 
+const openEditModal = () => {
+  if (!selectedPago.value)
+    return alert("Selecciona un pago para modificar.");
+
+  const pago = props.pagos.find((p) => p.id === selectedPago.value);
+  Object.assign(form, {
+    user_id: pago.user_id,
+    reserva_id: pago.reserva_id,
+    monto: pago.monto,
+    metodo_pago: pago.metodo_pago,
+    comprobante: null,
+    fecha_pago: pago.fecha_pago,
+    estado: pago.estado,
+  });
+  showEditModal.value = true;
+};
+
+const submitAdd = () => {
   const data = new FormData();
-  for (let key in form.value) {
-    data.append(key, form.value[key]);
+  for (let key in form) {
+    data.append(key, form[key]);
   }
-
   router.post(route("admin.pagos.store"), data, {
     forceFormData: true,
     onSuccess: () => {
-      Object.assign(form.value, {
-        user_id: "",
-        reserva_id: "",
-        monto: "",
-        metodo_pago: "",
-        comprobante: null,
-        fecha_pago: "",
-        estado: "pendiente",
-      });
+      alert("Pago registrado correctamente.");
+      showAddModal.value = false;
+      router.reload();
+    },
+    onError: (errors) => {
+      alert("Error al registrar el pago.");
+      console.error(errors);
     },
   });
-}
+};
 
-function update(pago) {
+const submitEdit = () => {
   const data = new FormData();
-  for (let key in pago) {
-    data.append(key, pago[key]);
+  for (let key in form) {
+    data.append(key, form[key]);
   }
-  router.post(route("admin.pagos.update", pago.id), data, {
+  router.post(route("admin.pagos.update", selectedPago.value), data, {
     forceFormData: true,
     method: "put",
+    onSuccess: () => {
+      alert("Pago actualizado correctamente.");
+      showEditModal.value = false;
+      router.reload();
+    },
+    onError: (errors) => {
+      alert("Error al actualizar pago.");
+      console.error(errors);
+    },
   });
-}
+};
 
-function destroy(id) {
+const deletePago = () => {
+  if (!selectedPago.value)
+    return alert("Selecciona un pago para eliminar.");
   if (confirm("¿Eliminar este pago?")) {
-    router.delete(route("admin.pagos.destroy", id));
+    router.delete(route("admin.pagos.destroy", selectedPago.value), {
+      onSuccess: () => {
+        alert("Pago eliminado correctamente.");
+        router.reload();
+      },
+      onError: (errors) => {
+        alert("Error al eliminar pago.");
+        console.error(errors);
+      },
+    });
   }
-}
+};
 </script>
 
 <template>
-  <AdminLayout title="Gestión de Pagos">
-    <h1 class="text-2xl font-bold mb-4">Gestión de Pagos</h1>
+  <Head title="Pagos" />
+  <AdminLayout title="Pagos">
+    <template #header>
+      <h2 class="text-xl font-semibold leading-tight text-gray-800">
+        Lista de Pagos
+      </h2>
+    </template>
 
-    <!-- Formulario nuevo pago -->
-    <form @submit.prevent="submit" class="mb-6 flex flex-wrap gap-2 items-center">
-      <!-- Usuario -->
-      <select v-model="form.user_id" class="border p-2 rounded">
-        <option disabled value="">Seleccione usuario</option>
-        <option v-for="u in usuarios" :key="u.id" :value="u.id">
-          {{ u.name }}
-        </option>
-      </select>
+    <div class="py-6 px-4">
+      <div class="flex gap-2 mb-4">
+        <button
+          class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+          @click="openAddModal"
+        >
+          Agregar
+        </button>
+        <button
+          class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+          @click="openEditModal"
+        >
+          Modificar
+        </button>
+        <button
+          class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+          @click="deletePago"
+        >
+          Eliminar
+        </button>
+      </div>
 
-      <!-- Reserva -->
-      <select v-model="form.reserva_id" class="border p-2 rounded">
-        <option disabled value="">Seleccione reserva</option>
-        <option v-for="r in reservas" :key="r.id" :value="r.id">
-          Reserva #{{ r.id }}
-        </option>
-      </select>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 border">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="px-4 py-2">Seleccionar</th>
+              <th class="px-4 py-2">ID</th>
+              <th class="px-4 py-2">Usuario</th>
+              <th class="px-4 py-2">Reserva</th>
+              <th class="px-4 py-2">Monto</th>
+              <th class="px-4 py-2">Método</th>
+              <th class="px-4 py-2">Fecha</th>
+              <th class="px-4 py-2">Estado</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr
+              v-for="pago in props.pagos"
+              :key="pago.id"
+              :class="selectedPago === pago.id ? 'bg-yellow-100' : ''"
+              @click="selectedPago = pago.id"
+            >
+              <td class="px-4 py-2 text-center">
+                <input type="radio" :value="pago.id" v-model="selectedPago" />
+              </td>
+              <td class="px-4 py-2">{{ pago.id }}</td>
+              <td class="px-4 py-2">{{ pago.user?.name }}</td>
+              <td class="px-4 py-2">#{{ pago.reserva_id }}</td>
+              <td class="px-4 py-2">{{ pago.monto }}</td>
+              <td class="px-4 py-2">{{ pago.metodo_pago }}</td>
+              <td class="px-4 py-2">{{ pago.fecha_pago }}</td>
+              <td class="px-4 py-2">{{ pago.estado }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-      <input type="number" v-model="form.monto" class="border p-2 rounded" placeholder="Monto" />
-      <input type="text" v-model="form.metodo_pago" class="border p-2 rounded" placeholder="Método de pago" />
-      <input type="datetime-local" v-model="form.fecha_pago" class="border p-2 rounded" />
+    <!-- Modal Agregar -->
+    <div
+      v-if="showAddModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white p-6 rounded w-96">
+        <h3 class="text-lg font-semibold mb-4">Agregar Pago</h3>
+        <form @submit.prevent="submitAdd" class="space-y-2">
+          <select v-model="form.user_id" class="w-full border p-1" required>
+            <option disabled value="">Seleccione usuario</option>
+            <option v-for="u in props.usuarios" :key="u.id" :value="u.id">
+              {{ u.name }}
+            </option>
+          </select>
+          <select v-model="form.reserva_id" class="w-full border p-1" required>
+            <option disabled value="">Seleccione reserva</option>
+            <option v-for="r in props.reservas" :key="r.id" :value="r.id">
+              Reserva #{{ r.id }}
+            </option>
+          </select>
+          <input
+            v-model="form.monto"
+            type="number"
+            placeholder="Monto"
+            class="w-full border p-1"
+            required
+          />
+          <input
+            v-model="form.metodo_pago"
+            placeholder="Método de pago"
+            class="w-full border p-1"
+            required
+          />
+          <input
+            v-model="form.fecha_pago"
+            type="datetime-local"
+            class="w-full border p-1"
+            required
+          />
+          <select v-model="form.estado" class="w-full border p-1" required>
+            <option value="pendiente">Pendiente</option>
+            <option value="confirmado">Confirmado</option>
+            <option value="rechazado">Rechazado</option>
+          </select>
+          <input
+            type="file"
+            @change="e => (form.comprobante = e.target.files[0])"
+            class="w-full border p-1"
+          />
 
-      <select v-model="form.estado" class="border p-2 rounded">
-        <option value="pendiente">Pendiente</option>
-        <option value="confirmado">Confirmado</option>
-        <option value="rechazado">Rechazado</option>
-      </select>
+          <div class="flex justify-end gap-2 mt-2">
+            <button
+              type="button"
+              class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+              @click="showAddModal = false"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+            >
+              Agregar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 
-      <input type="file" @change="e => form.comprobante = e.target.files[0]" class="border p-2 rounded" />
+    <!-- Modal Editar -->
+    <div
+      v-if="showEditModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white p-6 rounded w-96">
+        <h3 class="text-lg font-semibold mb-4">Editar Pago</h3>
+        <form @submit.prevent="submitEdit" class="space-y-2">
+          <select v-model="form.user_id" class="w-full border p-1" required>
+            <option disabled value="">Seleccione usuario</option>
+            <option v-for="u in props.usuarios" :key="u.id" :value="u.id">
+              {{ u.name }}
+            </option>
+          </select>
+          <select v-model="form.reserva_id" class="w-full border p-1" required>
+            <option disabled value="">Seleccione reserva</option>
+            <option v-for="r in props.reservas" :key="r.id" :value="r.id">
+              Reserva #{{ r.id }}
+            </option>
+          </select>
+          <input
+            v-model="form.monto"
+            type="number"
+            placeholder="Monto"
+            class="w-full border p-1"
+            required
+          />
+          <input
+            v-model="form.metodo_pago"
+            placeholder="Método de pago"
+            class="w-full border p-1"
+            required
+          />
+          <input
+            v-model="form.fecha_pago"
+            type="datetime-local"
+            class="w-full border p-1"
+            required
+          />
+          <select v-model="form.estado" class="w-full border p-1" required>
+            <option value="pendiente">Pendiente</option>
+            <option value="confirmado">Confirmado</option>
+            <option value="rechazado">Rechazado</option>
+          </select>
+          <input
+            type="file"
+            @change="e => (form.comprobante = e.target.files[0])"
+            class="w-full border p-1"
+          />
 
-      <button class="bg-blue-500 text-white px-4 py-2 rounded">Agregar</button>
-    </form>
-
-    <!-- Listado -->
-    <table class="w-full border rounded overflow-hidden">
-      <thead>
-        <tr class="bg-gray-200 text-left">
-          <th class="p-2">ID</th>
-          <th class="p-2">Usuario</th>
-          <th class="p-2">Reserva</th>
-          <th class="p-2">Monto</th>
-          <th class="p-2">Método</th>
-          <th class="p-2">Fecha</th>
-          <th class="p-2">Estado</th>
-          <th class="p-2">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="pago in pagos" :key="pago.id" class="border-t">
-          <td class="p-2">{{ pago.id }}</td>
-          <td class="p-2">{{ pago.user?.name }}</td>
-          <td class="p-2">#{{ pago.reserva_id }}</td>
-          <td class="p-2"><input type="number" v-model="pago.monto" class="border p-1 rounded w-full" /></td>
-          <td class="p-2"><input type="text" v-model="pago.metodo_pago" class="border p-1 rounded w-full" /></td>
-          <td class="p-2"><input type="datetime-local" v-model="pago.fecha_pago" class="border p-1 rounded w-full" /></td>
-          <td class="p-2">
-            <select v-model="pago.estado" class="border p-1 rounded">
-              <option value="pendiente">Pendiente</option>
-              <option value="confirmado">Confirmado</option>
-              <option value="rechazado">Rechazado</option>
-            </select>
-          </td>
-          <td class="p-2 flex gap-2">
-            <button @click="update(pago)" class="bg-green-500 text-white px-2 py-1 rounded">Guardar</button>
-            <button @click="destroy(pago.id)" class="bg-red-500 text-white px-2 py-1 rounded">Eliminar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          <div class="flex justify-end gap-2 mt-2">
+            <button
+              type="button"
+              class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+              @click="showEditModal = false"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+            >
+              Guardar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </AdminLayout>
 </template>
 

@@ -1,156 +1,260 @@
 <script setup>
-import { ref } from "vue";
-import { router } from "@inertiajs/vue3";
 import AdminLayout from "@/Layouts/AdminLayout.vue";
+import { Head, router } from "@inertiajs/vue3";
+import { ref, reactive } from "vue";
 
-defineProps({
-  reservas: Array, // viene del controlador
-  usuarios: Array, // lista de usuarios para el select
-  camas: Array,    // lista de camas para el select
+const props = defineProps({
+  reservas: Array,
+  usuarios: Array,
+  camas: Array,
 });
 
-// Formulario para nueva reserva
-const form = ref({
+const selectedReserva = ref(null);
+
+const showAddModal = ref(false);
+const showEditModal = ref(false);
+
+const form = reactive({
   user_id: "",
   cama_id: "",
   fecha: "",
   estado: "activa",
 });
 
-// Crear reserva
-function submit() {
-  if (!form.value.user_id || !form.value.cama_id || !form.value.fecha) {
-    alert("Todos los campos son obligatorios");
-    return;
-  }
-
-  router.post(route("admin.reservas.store"), form.value, {
-    onSuccess: () => {
-      form.value.user_id = "";
-      form.value.cama_id = "";
-      form.value.fecha = "";
-      form.value.estado = "activa";
-    },
+const openAddModal = () => {
+  Object.assign(form, {
+    user_id: "",
+    cama_id: "",
+    fecha: "",
+    estado: "activa",
   });
-}
+  showAddModal.value = true;
+};
 
-// Editar reserva
-function update(reserva) {
-  router.put(route("admin.reservas.update", reserva.id), {
+const openEditModal = () => {
+  if (!selectedReserva.value)
+    return alert("Selecciona una reserva para modificar.");
+
+  const reserva = props.reservas.find((r) => r.id === selectedReserva.value);
+  Object.assign(form, {
     user_id: reserva.user_id,
     cama_id: reserva.cama_id,
     fecha: reserva.fecha,
     estado: reserva.estado,
   });
-}
+  showEditModal.value = true;
+};
 
-// Eliminar reserva
-function destroy(id) {
+const submitAdd = () => {
+  router.post(route("admin.reservas.store"), { ...form }, {
+    onSuccess: () => {
+      alert("Reserva creada correctamente.");
+      showAddModal.value = false;
+      router.reload();
+    },
+    onError: (errors) => {
+      alert("Error al crear la reserva.");
+      console.error(errors);
+    },
+  });
+};
+
+const submitEdit = () => {
+  router.put(route("admin.reservas.update", selectedReserva.value), { ...form }, {
+    onSuccess: () => {
+      alert("Reserva actualizada correctamente.");
+      showEditModal.value = false;
+      router.reload();
+    },
+    onError: (errors) => {
+      alert("Error al actualizar reserva.");
+      console.error(errors);
+    },
+  });
+};
+
+const deleteReserva = () => {
+  if (!selectedReserva.value)
+    return alert("Selecciona una reserva para eliminar.");
   if (confirm("¿Eliminar esta reserva?")) {
-    router.delete(route("admin.reservas.destroy", id));
+    router.delete(route("admin.reservas.destroy", selectedReserva.value), {
+      onSuccess: () => {
+        alert("Reserva eliminada correctamente.");
+        router.reload();
+      },
+      onError: (errors) => {
+        alert("Error al eliminar reserva.");
+        console.error(errors);
+      },
+    });
   }
-}
+};
 </script>
 
 <template>
-  <AdminLayout title="Gestión de Reservas">
-    <h1 class="text-2xl font-bold mb-4">Gestión de Reservas</h1>
+  <Head title="Reservas" />
+  <AdminLayout title="Reservas">
+    <template #header>
+      <h2 class="text-xl font-semibold leading-tight text-gray-800">
+        Lista de Reservas
+      </h2>
+    </template>
 
-    <!-- Formulario agregar reserva -->
-    <form @submit.prevent="submit" class="mb-6 flex flex-wrap gap-2 items-center">
-      <!-- Usuario -->
-      <select v-model="form.user_id" class="border p-2 rounded">
-        <option disabled value="">Seleccione un usuario</option>
-        <option v-for="u in usuarios" :key="u.id" :value="u.id">
-          {{ u.name }} ({{ u.email }})
-        </option>
-      </select>
+    <div class="py-6 px-4">
+      <div class="flex gap-2 mb-4">
+        <button
+          class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+          @click="openAddModal"
+        >
+          Agregar
+        </button>
+        <button
+          class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+          @click="openEditModal"
+        >
+          Modificar
+        </button>
+        <button
+          class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+          @click="deleteReserva"
+        >
+          Eliminar
+        </button>
+      </div>
 
-      <!-- Cama -->
-      <select v-model="form.cama_id" class="border p-2 rounded">
-        <option disabled value="">Seleccione una cama</option>
-        <option v-for="c in camas" :key="c.id" :value="c.id">
-          {{ c.nombre }}
-        </option>
-      </select>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 border">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="px-4 py-2">Seleccionar</th>
+              <th class="px-4 py-2">ID</th>
+              <th class="px-4 py-2">Usuario</th>
+              <th class="px-4 py-2">Cama</th>
+              <th class="px-4 py-2">Fecha</th>
+              <th class="px-4 py-2">Estado</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr
+              v-for="reserva in props.reservas"
+              :key="reserva.id"
+              :class="selectedReserva === reserva.id ? 'bg-yellow-100' : ''"
+              @click="selectedReserva = reserva.id"
+            >
+              <td class="px-4 py-2 text-center">
+                <input type="radio" :value="reserva.id" v-model="selectedReserva" />
+              </td>
+              <td class="px-4 py-2">{{ reserva.id }}</td>
+              <td class="px-4 py-2">{{ reserva.user?.name }}</td>
+              <td class="px-4 py-2">{{ reserva.cama?.nombre }}</td>
+              <td class="px-4 py-2">{{ reserva.fecha }}</td>
+              <td class="px-4 py-2">{{ reserva.estado }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-      <!-- Fecha -->
-      <input type="datetime-local" v-model="form.fecha" class="border p-2 rounded" />
+    <!-- Modal Agregar -->
+    <div
+      v-if="showAddModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white p-6 rounded w-96">
+        <h3 class="text-lg font-semibold mb-4">Agregar Reserva</h3>
+        <form @submit.prevent="submitAdd" class="space-y-2">
+          <select v-model="form.user_id" class="w-full border p-1" required>
+            <option disabled value="">Seleccione un usuario</option>
+            <option v-for="u in props.usuarios" :key="u.id" :value="u.id">
+              {{ u.name }} ({{ u.email }})
+            </option>
+          </select>
+          <select v-model="form.cama_id" class="w-full border p-1" required>
+            <option disabled value="">Seleccione una cama</option>
+            <option v-for="c in props.camas" :key="c.id" :value="c.id">
+              {{ c.nombre }}
+            </option>
+          </select>
+          <input
+            v-model="form.fecha"
+            type="datetime-local"
+            class="w-full border p-1"
+            required
+          />
+          <select v-model="form.estado" class="w-full border p-1" required>
+            <option value="activa">Activa</option>
+            <option value="cancelada">Cancelada</option>
+          </select>
 
-      <!-- Estado -->
-      <select v-model="form.estado" class="border p-2 rounded">
-        <option value="activa">Activa</option>
-        <option value="cancelada">Cancelada</option>
-      </select>
-
-      <button class="bg-blue-500 text-white px-4 py-2 rounded">Agregar</button>
-    </form>
-
-    <!-- Listado de reservas -->
-    <table class="w-full border rounded overflow-hidden">
-      <thead>
-        <tr class="bg-gray-200 text-left">
-          <th class="p-2">ID</th>
-          <th class="p-2">Usuario</th>
-          <th class="p-2">Cama</th>
-          <th class="p-2">Fecha</th>
-          <th class="p-2">Estado</th>
-          <th class="p-2">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="reserva in reservas" :key="reserva.id" class="border-t">
-          <td class="p-2">{{ reserva.id }}</td>
-
-          <!-- Usuario -->
-          <td class="p-2">
-            <select v-model="reserva.user_id" class="border p-1 rounded">
-              <option v-for="u in usuarios" :key="u.id" :value="u.id">
-                {{ u.name }}
-              </option>
-            </select>
-          </td>
-
-          <!-- Cama -->
-          <td class="p-2">
-            <select v-model="reserva.cama_id" class="border p-1 rounded">
-              <option v-for="c in camas" :key="c.id" :value="c.id">
-                {{ c.nombre }}
-              </option>
-            </select>
-          </td>
-
-          <!-- Fecha -->
-          <td class="p-2">
-            <input type="datetime-local" v-model="reserva.fecha" class="border p-1 rounded w-full" />
-          </td>
-
-          <!-- Estado -->
-          <td class="p-2">
-            <select v-model="reserva.estado" class="border p-1 rounded">
-              <option value="activa">Activa</option>
-              <option value="cancelada">Cancelada</option>
-            </select>
-          </td>
-
-          <!-- Acciones -->
-          <td class="p-2 flex gap-2">
+          <div class="flex justify-end gap-2 mt-2">
             <button
-              @click="update(reserva)"
-              class="bg-green-500 text-white px-2 py-1 rounded"
+              type="button"
+              class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+              @click="showAddModal = false"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+            >
+              Agregar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal Editar -->
+    <div
+      v-if="showEditModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white p-6 rounded w-96">
+        <h3 class="text-lg font-semibold mb-4">Editar Reserva</h3>
+        <form @submit.prevent="submitEdit" class="space-y-2">
+          <select v-model="form.user_id" class="w-full border p-1" required>
+            <option disabled value="">Seleccione un usuario</option>
+            <option v-for="u in props.usuarios" :key="u.id" :value="u.id">
+              {{ u.name }} ({{ u.email }})
+            </option>
+          </select>
+          <select v-model="form.cama_id" class="w-full border p-1" required>
+            <option disabled value="">Seleccione una cama</option>
+            <option v-for="c in props.camas" :key="c.id" :value="c.id">
+              {{ c.nombre }}
+            </option>
+          </select>
+          <input
+            v-model="form.fecha"
+            type="datetime-local"
+            class="w-full border p-1"
+            required
+          />
+          <select v-model="form.estado" class="w-full border p-1" required>
+            <option value="activa">Activa</option>
+            <option value="cancelada">Cancelada</option>
+          </select>
+
+          <div class="flex justify-end gap-2 mt-2">
+            <button
+              type="button"
+              class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+              @click="showEditModal = false"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
             >
               Guardar
             </button>
-            <button
-              @click="destroy(reserva.id)"
-              class="bg-red-500 text-white px-2 py-1 rounded"
-            >
-              Eliminar
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          </div>
+        </form>
+      </div>
+    </div>
   </AdminLayout>
 </template>
+
 

@@ -49,8 +49,8 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         Route::delete('/users/{user}', [AdminController::class, 'destroy'])->name('users.destroy');
 
         // CRUD Camas
-        Route::get('/camas', [CamaController::class, 'index'])->name('camas.index');
-        Route::post('/camas', [CamaController::class, 'store'])->name('camas.store');
+        Route::get('/cama', [CamaController::class, 'index'])->name('camas.index');
+        Route::post('/cama', [CamaController::class, 'store'])->name('camas.store');
         Route::put('/camas/{cama}', [CamaController::class, 'update'])->name('camas.update');
         Route::delete('/camas/{cama}', [CamaController::class, 'destroy'])->name('camas.destroy');
 
