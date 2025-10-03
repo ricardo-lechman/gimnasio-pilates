@@ -3,11 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Admin\CamaController;
 use App\Http\Controllers\Admin\CronogramaController;
 use App\Http\Controllers\Admin\ReservaController;
 use App\Http\Controllers\Admin\PagoController;
+use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\User\UserReservaController;
+use App\Http\Controllers\User\UserPagoController;
 
 // Página de inicio: Redirige al login o al dashboard correspondiente.
 Route::get('/', function () {
@@ -88,8 +90,10 @@ Route::middleware(['auth', 'verified', 'role:user'])
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
 
         // Reservas de Usuario
-        Route::get('/reservas', fn () => Inertia::render('Users/Reservas/Index'))->name('reservas.index');
-        Route::get('/reservas/{id}', fn ($id) => Inertia::render('Users/Reservas/Show', ['id' => $id]))->name('reservas.show');
+        Route::get('/reservas', [UserReservaController::class, 'index'])->name('reservas.index');
+        Route::post('/reservas', [UserReservaController::class, 'store'])->name('reservas.store');
+        Route::put('/reservas/{reserva}', [UserReservaController::class, 'update'])->name('reservas.update');
+        Route::delete('/reservas/{reserva}', [UserReservaController::class, 'destroy'])->name('reservas.destroy');
 
         // Pagos de Usuario
         Route::get('/pagos', fn () => Inertia::render('Users/Pagos/Index'))->name('pagos.index');

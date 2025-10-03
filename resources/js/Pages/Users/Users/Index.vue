@@ -10,17 +10,22 @@ const props = defineProps({
 const showEditModal = ref(false);
 
 const form = reactive({
-  nombre: '',
+  name: '',
   email: '',
   password: '',
+  telefono: '',
+  dni: '',
+  obra_social: '',
 });
-
 
 onMounted(() => {
   if (props.users.length > 0) {
     const user = props.users[0];
-    form.nombre = user.name;
+    form.name = user.name;
     form.email = user.email;
+    form.telefono = user.telefono || '';
+    form.dni = user.dni || '';
+    form.obra_social = user.obra_social || '';
     form.password = '';
   }
 });
@@ -32,8 +37,11 @@ const openEditModal = () => {
 const submitEdit = () => {
   const userId = props.users[0].id;
   const data = {
-    nombre: form.nombre,
+    name: form.name,
     email: form.email,
+    telefono: form.telefono,
+    dni: form.dni,
+    obra_social: form.obra_social,
   };
   if (form.password.trim() !== '') {
     data.password = form.password;
@@ -75,18 +83,16 @@ const submitEdit = () => {
         <table class="min-w-full divide-y divide-gray-200 border">
           <thead class="bg-gray-100">
             <tr>
-              <th class="px-4 py-2">ID</th>
               <th class="px-4 py-2">Nombre</th>
               <th class="px-4 py-2">Email</th>
-              <th class="px-4 py-2">Rol</th>
+              <th class="px-4 py-2">Teléfono</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <tr>
-              <td class="px-4 py-2">{{ props.users[0].id }}</td>
               <td class="px-4 py-2">{{ props.users[0].name }}</td>
               <td class="px-4 py-2">{{ props.users[0].email }}</td>
-              <td class="px-4 py-2">{{ props.users[0].role }}</td>
+              <td class="px-4 py-2">{{ props.users[0].telefono }}</td>
             </tr>
           </tbody>
         </table>
@@ -98,11 +104,11 @@ const submitEdit = () => {
       v-if="showEditModal"
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
     >
-      <div class="bg-white p-6 rounded w-96">
+      <div class="bg-black p-6 rounded w-96">
         <h3 class="text-lg font-semibold mb-4">Editar Usuario</h3>
         <form @submit.prevent="submitEdit" class="space-y-2">
           <input
-            v-model="form.nombre"
+            v-model="form.name"
             placeholder="Nombre"
             class="w-full border p-1"
             required
@@ -115,6 +121,21 @@ const submitEdit = () => {
             required
           />
           <input
+            v-model="form.telefono"
+            placeholder="Teléfono"
+            class="w-full border p-1"
+          />
+          <input
+            v-model="form.dni"
+            placeholder="DNI"
+            class="w-full border p-1"
+          />
+          <input
+            v-model="form.obra_social"
+            placeholder="Obra Social"
+            class="w-full border p-1"
+          />
+          <input
             v-model="form.password"
             type="password"
             placeholder="Nueva Contraseña (opcional)"
@@ -123,7 +144,7 @@ const submitEdit = () => {
           <div class="flex justify-end gap-2 mt-2">
             <button
               type="button"
-              class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+              class="bg-gray-500 text-black px-3 py-1 rounded hover:bg-gray-700"
               @click="showEditModal = false"
             >
               Cancelar
