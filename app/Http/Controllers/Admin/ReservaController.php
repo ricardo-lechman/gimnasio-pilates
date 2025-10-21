@@ -6,21 +6,30 @@ use App\Http\Controllers\Controller;
 use App\Models\Reserva;
 use App\Models\User;
 use App\Models\Cama;
+use App\Models\Cronograma;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class ReservaController extends Controller
 {
     public function index()
     {
-        $reservas = Reserva::with(['user', 'cama'])->get();
-        $usuarios = User::all();
+        $reservas = Reserva::with(['user', 'cama', 'cronograma'])
+            ->join('cronogramas', 'reservas.cronograma_id', '=', 'cronogramas.id')
+            ->orderBy('cronogramas.date', 'asc')
+            ->select('reservas.*')
+            ->get();
+
+        $usuarios = User::where('role', 'user')->get();
         $camas = Cama::all();
+        $cronogramas = Cronograma::all();
 
         return Inertia::render('Admin/Reservas/Index', [
             'reservas' => $reservas,
             'usuarios' => $usuarios,
-            'camas'    => $camas,
+            'camas' => $camas,
+            'cronogramas' => $cronogramas,
         ]);
     }
 
@@ -29,13 +38,24 @@ class ReservaController extends Controller
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'cama_id' => 'required|exists:camas,id',
-            'fecha'   => 'required|date',
-            'estado'  => 'required|in:activa,cancelada',
+            'cronograma_id' => 'required|exists:cronogramas,id',
+            'estado' => 'required|in:activa,cancelada',
         ]);
+
+        $cronograma = Cronograma::find($request->cronograma_id);
+
+        // Validar disponibilidad de la cama en ese cronograma
+        $ocupada = Reserva::where('cama_id', $request->cama_id)
+            ->where('cronograma_id', $request->cronograma_id)
+            ->exists();
+
+        if ($ocupada) {
+            return back()->withErrors(['cama_id' => 'La cama ya está reservada para este turno.']);
+        }
 
         Reserva::create($request->all());
 
-        return redirect()->route('admin.reservas.index')->with('success', 'Reserva creada correctamente');
+        return redirect()->route('admin.reservas.index')->with('success', 'Reserva creada correctamente.');
     }
 
     public function update(Request $request, Reserva $reserva)
@@ -43,19 +63,28 @@ class ReservaController extends Controller
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'cama_id' => 'required|exists:camas,id',
-            'fecha'   => 'required|date',
-            'estado'  => 'required|in:activa,cancelada',
+            'cronograma_id' => 'required|exists:cronogramas,id',
+            'estado' => 'required|in:activa,cancelada',
         ]);
+
+        $ocupada = Reserva::where('cama_id', $request->cama_id)
+            ->where('cronograma_id', $request->cronograma_id)
+            ->where('id', '!=', $reserva->id)
+            ->exists();
+
+        if ($ocupada) {
+            return back()->withErrors(['cama_id' => 'La cama ya está reservada para este turno.']);
+        }
 
         $reserva->update($request->all());
 
-        return redirect()->route('admin.reservas.index')->with('success', 'Reserva actualizada correctamente');
+        return redirect()->route('admin.reservas.index')->with('success', 'Reserva actualizada correctamente.');
     }
 
     public function destroy(Reserva $reserva)
     {
         $reserva->delete();
-
-        return redirect()->route('admin.reservas.index')->with('success', 'Reserva eliminada correctamente');
+        return redirect()->route('admin.reservas.index')->with('success', 'Reserva eliminada correctamente.');
     }
 }
+

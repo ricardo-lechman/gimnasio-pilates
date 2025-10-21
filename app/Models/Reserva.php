@@ -12,7 +12,7 @@ class Reserva extends Model
     protected $fillable = [
         'user_id',
         'cama_id',
-        'fecha',
+        'cronograma_id',
         'estado',
     ];
 
@@ -26,4 +26,13 @@ class Reserva extends Model
     {
         return $this->belongsTo(Cama::class);
     }
+
+    public function cronograma()
+    {
+        return $this->belongsTo(Cronograma::class);
+    }
 }
+
+
+
+

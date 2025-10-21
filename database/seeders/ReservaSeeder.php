@@ -12,16 +12,14 @@ class ReservaSeeder extends Seeder
 {
     public function run(): void
     {
-        // Traemos todos los usuarios que NO sean admin
         $usuarios = User::where('role', 'user')->get();
-
         $camas = Cama::all();
         $cronogramas = Cronograma::all();
 
         foreach ($usuarios as $user) {
             foreach ($camas as $cama) {
                 foreach ($cronogramas as $cronograma) {
-                    // Evitamos duplicados
+                    // Evita duplicados
                     Reserva::firstOrCreate(
                         [
                             'user_id' => $user->id,
@@ -37,3 +35,4 @@ class ReservaSeeder extends Seeder
         }
     }
 }
+

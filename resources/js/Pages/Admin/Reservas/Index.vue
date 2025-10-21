@@ -2,11 +2,13 @@
 import AdminLayout from "@/Layouts/AdminLayout.vue";
 import { Head, router } from "@inertiajs/vue3";
 import { ref, reactive } from "vue";
+import { format, parseISO } from "date-fns";
 
 const props = defineProps({
   reservas: Array,
   usuarios: Array,
   camas: Array,
+  cronogramas: Array,
 });
 
 const selectedReserva = ref(null);
@@ -17,7 +19,7 @@ const showEditModal = ref(false);
 const form = reactive({
   user_id: "",
   cama_id: "",
-  fecha: "",
+  cronograma_id: "",
   estado: "activa",
 });
 
@@ -25,21 +27,20 @@ const openAddModal = () => {
   Object.assign(form, {
     user_id: "",
     cama_id: "",
-    fecha: "",
+    cronograma_id: "",
     estado: "activa",
   });
   showAddModal.value = true;
 };
 
 const openEditModal = () => {
-  if (!selectedReserva.value)
-    return alert("Selecciona una reserva para modificar.");
+  if (!selectedReserva.value) return alert("Selecciona una reserva para modificar.");
 
   const reserva = props.reservas.find((r) => r.id === selectedReserva.value);
   Object.assign(form, {
     user_id: reserva.user_id,
     cama_id: reserva.cama_id,
-    fecha: reserva.fecha,
+    cronograma_id: reserva.cronograma_id,
     estado: reserva.estado,
   });
   showEditModal.value = true;
@@ -74,8 +75,7 @@ const submitEdit = () => {
 };
 
 const deleteReserva = () => {
-  if (!selectedReserva.value)
-    return alert("Selecciona una reserva para eliminar.");
+  if (!selectedReserva.value) return alert("Selecciona una reserva para eliminar.");
   if (confirm("¿Eliminar esta reserva?")) {
     router.delete(route("admin.reservas.destroy", selectedReserva.value), {
       onSuccess: () => {
@@ -88,6 +88,11 @@ const deleteReserva = () => {
       },
     });
   }
+};
+
+const formatFecha = (cronograma) => {
+  const fecha = parseISO(cronograma.date);
+  return `${format(fecha, "dd/MM/yyyy")} ${cronograma.start_time}`;
 };
 </script>
 
@@ -102,22 +107,13 @@ const deleteReserva = () => {
 
     <div class="py-6 px-4">
       <div class="flex gap-2 mb-4">
-        <button
-          class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
-          @click="openAddModal"
-        >
+        <button class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800" @click="openAddModal">
           Agregar
         </button>
-        <button
-          class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
-          @click="openEditModal"
-        >
+        <button class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800" @click="openEditModal">
           Modificar
         </button>
-        <button
-          class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
-          @click="deleteReserva"
-        >
+        <button class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800" @click="deleteReserva">
           Eliminar
         </button>
       </div>
@@ -130,11 +126,11 @@ const deleteReserva = () => {
               <th class="px-4 py-2">ID</th>
               <th class="px-4 py-2">Usuario</th>
               <th class="px-4 py-2">Cama</th>
-              <th class="px-4 py-2">Fecha</th>
+              <th class="px-4 py-2">Turno</th>
               <th class="px-4 py-2">Estado</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody class="bg-black divide-y divide-gray-200">
             <tr
               v-for="reserva in props.reservas"
               :key="reserva.id"
@@ -147,7 +143,7 @@ const deleteReserva = () => {
               <td class="px-4 py-2">{{ reserva.id }}</td>
               <td class="px-4 py-2">{{ reserva.user?.name }}</td>
               <td class="px-4 py-2">{{ reserva.cama?.nombre }}</td>
-              <td class="px-4 py-2">{{ reserva.fecha }}</td>
+              <td class="px-4 py-2">{{ formatFecha(reserva.cronograma) }}</td>
               <td class="px-4 py-2">{{ reserva.estado }}</td>
             </tr>
           </tbody>
@@ -156,11 +152,8 @@ const deleteReserva = () => {
     </div>
 
     <!-- Modal Agregar -->
-    <div
-      v-if="showAddModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div class="bg-white p-6 rounded w-96">
+    <div v-if="showAddModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-black p-6 rounded w-96">
         <h3 class="text-lg font-semibold mb-4">Agregar Reserva</h3>
         <form @submit.prevent="submitAdd" class="space-y-2">
           <select v-model="form.user_id" class="w-full border p-1" required>
@@ -169,35 +162,31 @@ const deleteReserva = () => {
               {{ u.name }} ({{ u.email }})
             </option>
           </select>
+
           <select v-model="form.cama_id" class="w-full border p-1" required>
             <option disabled value="">Seleccione una cama</option>
             <option v-for="c in props.camas" :key="c.id" :value="c.id">
               {{ c.nombre }}
             </option>
           </select>
-          <input
-            v-model="form.fecha"
-            type="datetime-local"
-            class="w-full border p-1"
-            required
-          />
+
+          <select v-model="form.cronograma_id" class="w-full border p-1" required>
+            <option disabled value="">Seleccione un turno</option>
+            <option v-for="c in props.cronogramas" :key="c.id" :value="c.id">
+              {{ formatFecha(c) }}
+            </option>
+          </select>
+
           <select v-model="form.estado" class="w-full border p-1" required>
             <option value="activa">Activa</option>
             <option value="cancelada">Cancelada</option>
           </select>
 
           <div class="flex justify-end gap-2 mt-2">
-            <button
-              type="button"
-              class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
-              @click="showAddModal = false"
-            >
+            <button type="button" class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800" @click="showAddModal = false">
               Cancelar
             </button>
-            <button
-              type="submit"
-              class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
-            >
+            <button type="submit" class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800">
               Agregar
             </button>
           </div>
@@ -206,11 +195,8 @@ const deleteReserva = () => {
     </div>
 
     <!-- Modal Editar -->
-    <div
-      v-if="showEditModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div class="bg-white p-6 rounded w-96">
+    <div v-if="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-black p-6 rounded w-96">
         <h3 class="text-lg font-semibold mb-4">Editar Reserva</h3>
         <form @submit.prevent="submitEdit" class="space-y-2">
           <select v-model="form.user_id" class="w-full border p-1" required>
@@ -219,35 +205,31 @@ const deleteReserva = () => {
               {{ u.name }} ({{ u.email }})
             </option>
           </select>
+
           <select v-model="form.cama_id" class="w-full border p-1" required>
             <option disabled value="">Seleccione una cama</option>
             <option v-for="c in props.camas" :key="c.id" :value="c.id">
               {{ c.nombre }}
             </option>
           </select>
-          <input
-            v-model="form.fecha"
-            type="datetime-local"
-            class="w-full border p-1"
-            required
-          />
+
+          <select v-model="form.cronograma_id" class="w-full border p-1" required>
+            <option disabled value="">Seleccione un turno</option>
+            <option v-for="c in props.cronogramas" :key="c.id" :value="c.id">
+              {{ formatFecha(c) }}
+            </option>
+          </select>
+
           <select v-model="form.estado" class="w-full border p-1" required>
             <option value="activa">Activa</option>
             <option value="cancelada">Cancelada</option>
           </select>
 
           <div class="flex justify-end gap-2 mt-2">
-            <button
-              type="button"
-              class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
-              @click="showEditModal = false"
-            >
+            <button type="button" class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800" @click="showEditModal = false">
               Cancelar
             </button>
-            <button
-              type="submit"
-              class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
-            >
+            <button type="submit" class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800">
               Guardar
             </button>
           </div>
@@ -256,5 +238,6 @@ const deleteReserva = () => {
     </div>
   </AdminLayout>
 </template>
+
 
 
