@@ -9,7 +9,6 @@ use App\Models\Cama;
 use App\Models\Cronograma;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Carbon\Carbon;
 
 class ReservaController extends Controller
 {
@@ -39,10 +38,8 @@ class ReservaController extends Controller
             'user_id' => 'required|exists:users,id',
             'cama_id' => 'required|exists:camas,id',
             'cronograma_id' => 'required|exists:cronogramas,id',
-            'estado' => 'required|in:activa,cancelada',
+            'status' => 'required|in:pendiente,confirmado,cancelado',
         ]);
-
-        $cronograma = Cronograma::find($request->cronograma_id);
 
         // Validar disponibilidad de la cama en ese cronograma
         $ocupada = Reserva::where('cama_id', $request->cama_id)
@@ -64,9 +61,10 @@ class ReservaController extends Controller
             'user_id' => 'required|exists:users,id',
             'cama_id' => 'required|exists:camas,id',
             'cronograma_id' => 'required|exists:cronogramas,id',
-            'estado' => 'required|in:activa,cancelada',
+            'status' => 'required|in:pendiente,confirmado,cancelado',
         ]);
 
+        // Validar disponibilidad de la cama en ese cronograma (excluyendo la reserva actual)
         $ocupada = Reserva::where('cama_id', $request->cama_id)
             ->where('cronograma_id', $request->cronograma_id)
             ->where('id', '!=', $reserva->id)

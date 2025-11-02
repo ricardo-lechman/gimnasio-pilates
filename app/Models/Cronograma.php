@@ -16,21 +16,20 @@ class Cronograma extends Model
     ];
 
     protected $casts = [
-        'date' => 'date',
-        'start_time' => 'datetime:H:i',
-        'end_time' => 'datetime:H:i',
+        'date' => 'date',     // Mantener como date
+        'start_time' => 'string',
+        'end_time' => 'string',
     ];
 
-    // Relaciones
     public function reservas()
     {
         return $this->hasMany(Reserva::class);
     }
 
-    // 🔍 Método auxiliar opcional para formatear turno
     public function getTurnoAttribute()
     {
         return "{$this->date->format('d/m/Y')} ({$this->start_time} - {$this->end_time})";
     }
 }
+
 

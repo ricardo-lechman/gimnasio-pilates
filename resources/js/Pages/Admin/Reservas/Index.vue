@@ -1,7 +1,7 @@
 <script setup>
 import AdminLayout from "@/Layouts/AdminLayout.vue";
 import { Head, router } from "@inertiajs/vue3";
-import { ref, reactive } from "vue";
+import { ref, reactive, computed, watch } from "vue";
 import { format, parseISO } from "date-fns";
 
 const props = defineProps({
@@ -19,20 +19,27 @@ const showEditModal = ref(false);
 const form = reactive({
   user_id: "",
   cama_id: "",
+  fecha: "",
   cronograma_id: "",
-  status: "activa", // reemplaza "estado" por "status" si en DB está así
+  status: "pendiente",
 });
 
+// Estados válidos
+const estados = ["pendiente", "confirmado", "cancelado"];
+
+// Abre modal de agregar
 const openAddModal = () => {
   Object.assign(form, {
     user_id: "",
     cama_id: "",
+    fecha: "",
     cronograma_id: "",
-    status: "activa",
+    status: "pendiente",
   });
   showAddModal.value = true;
 };
 
+// Abre modal de editar
 const openEditModal = () => {
   if (!selectedReserva.value) return alert("Selecciona una reserva para modificar.");
 
@@ -40,12 +47,28 @@ const openEditModal = () => {
   Object.assign(form, {
     user_id: reserva.user_id,
     cama_id: reserva.cama_id,
+    fecha: reserva.cronograma.date,
     cronograma_id: reserva.cronograma_id,
     status: reserva.status,
   });
   showEditModal.value = true;
 };
 
+// Computed: cronogramas disponibles según fecha y cama
+const availableCronogramas = computed(() => {
+  if (!form.fecha || !form.cama_id) return [];
+  return props.cronogramas
+    .filter(c => format(new Date(c.date), "yyyy-MM-dd") === form.fecha)
+    .filter(c => !props.reservas.some(r => r.cama_id === form.cama_id && r.cronograma_id === c.id));
+});
+
+// Formateo de cronograma
+const formatFecha = (cronograma) => {
+  const fecha = parseISO(cronograma.date);
+  return `${format(fecha, "dd/MM/yyyy")} ${cronograma.start_time} - ${cronograma.end_time}`;
+};
+
+// Submit agregar
 const submitAdd = () => {
   router.post(route("admin.reservas.store"), { ...form }, {
     onSuccess: () => {
@@ -60,6 +83,7 @@ const submitAdd = () => {
   });
 };
 
+// Submit editar
 const submitEdit = () => {
   router.put(route("admin.reservas.update", selectedReserva.value), { ...form }, {
     onSuccess: () => {
@@ -74,6 +98,7 @@ const submitEdit = () => {
   });
 };
 
+// Eliminar reserva
 const deleteReserva = () => {
   if (!selectedReserva.value) return alert("Selecciona una reserva para eliminar.");
   if (confirm("¿Eliminar esta reserva?")) {
@@ -90,10 +115,10 @@ const deleteReserva = () => {
   }
 };
 
-const formatFecha = (cronograma) => {
-  const fecha = parseISO(cronograma.date);
-  return `${format(fecha, "dd/MM/yyyy")} ${cronograma.start_time}`;
-};
+// Reset cronograma al cambiar fecha o cama
+watch([() => form.fecha, () => form.cama_id], () => {
+  form.cronograma_id = "";
+});
 </script>
 
 <template>
@@ -170,16 +195,17 @@ const formatFecha = (cronograma) => {
             </option>
           </select>
 
+          <input type="date" v-model="form.fecha" class="w-full border p-1" required />
+
           <select v-model="form.cronograma_id" class="w-full border p-1" required>
-            <option disabled value="">Seleccione un turno</option>
-            <option v-for="c in props.cronogramas" :key="c.id" :value="c.id">
-              {{ formatFecha(c) }}
+            <option disabled value="">Seleccione un horario de la lista</option>
+            <option v-for="c in availableCronogramas" :key="c.id" :value="c.id">
+              {{ c.start_time }} - {{ c.end_time }}
             </option>
           </select>
 
           <select v-model="form.status" class="w-full border p-1" required>
-            <option value="activa">Activa</option>
-            <option value="cancelada">Cancelada</option>
+            <option v-for="e in estados" :key="e" :value="e">{{ e }}</option>
           </select>
 
           <div class="flex justify-end gap-2 mt-2">
@@ -196,7 +222,7 @@ const formatFecha = (cronograma) => {
 
     <!-- Modal Editar -->
     <div v-if="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-black p-6 rounded w-96">
+      <div class="bg-white p-6 rounded w-96">
         <h3 class="text-lg font-semibold mb-4">Editar Reserva</h3>
         <form @submit.prevent="submitEdit" class="space-y-2">
           <select v-model="form.user_id" class="w-full border p-1" required>
@@ -213,16 +239,17 @@ const formatFecha = (cronograma) => {
             </option>
           </select>
 
+          <input type="date" v-model="form.fecha" class="w-full border p-1" required />
+
           <select v-model="form.cronograma_id" class="w-full border p-1" required>
-            <option disabled value="">Seleccione un turno</option>
-            <option v-for="c in props.cronogramas" :key="c.id" :value="c.id">
-              {{ formatFecha(c) }}
+            <option disabled value="">Seleccione un horario de la lista</option>
+            <option v-for="c in availableCronogramas" :key="c.id" :value="c.id">
+              {{ c.start_time }} - {{ c.end_time }}
             </option>
           </select>
 
           <select v-model="form.status" class="w-full border p-1" required>
-            <option value="activa">Activa</option>
-            <option value="cancelada">Cancelada</option>
+            <option v-for="e in estados" :key="e" :value="e">{{ e }}</option>
           </select>
 
           <div class="flex justify-end gap-2 mt-2">
@@ -238,6 +265,7 @@ const formatFecha = (cronograma) => {
     </div>
   </AdminLayout>
 </template>
+
 
 
 
