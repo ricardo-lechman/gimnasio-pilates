@@ -20,7 +20,7 @@ const form = reactive({
   user_id: "",
   cama_id: "",
   cronograma_id: "",
-  estado: "activa",
+  status: "activa", // reemplaza "estado" por "status" si en DB está así
 });
 
 const openAddModal = () => {
@@ -28,7 +28,7 @@ const openAddModal = () => {
     user_id: "",
     cama_id: "",
     cronograma_id: "",
-    estado: "activa",
+    status: "activa",
   });
   showAddModal.value = true;
 };
@@ -41,7 +41,7 @@ const openEditModal = () => {
     user_id: reserva.user_id,
     cama_id: reserva.cama_id,
     cronograma_id: reserva.cronograma_id,
-    estado: reserva.estado,
+    status: reserva.status,
   });
   showEditModal.value = true;
 };
@@ -144,7 +144,7 @@ const formatFecha = (cronograma) => {
               <td class="px-4 py-2">{{ reserva.user?.name }}</td>
               <td class="px-4 py-2">{{ reserva.cama?.nombre }}</td>
               <td class="px-4 py-2">{{ formatFecha(reserva.cronograma) }}</td>
-              <td class="px-4 py-2">{{ reserva.estado }}</td>
+              <td class="px-4 py-2">{{ reserva.status }}</td>
             </tr>
           </tbody>
         </table>
@@ -153,7 +153,7 @@ const formatFecha = (cronograma) => {
 
     <!-- Modal Agregar -->
     <div v-if="showAddModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-black p-6 rounded w-96">
+      <div class="bg-white p-6 rounded w-96">
         <h3 class="text-lg font-semibold mb-4">Agregar Reserva</h3>
         <form @submit.prevent="submitAdd" class="space-y-2">
           <select v-model="form.user_id" class="w-full border p-1" required>
@@ -177,7 +177,7 @@ const formatFecha = (cronograma) => {
             </option>
           </select>
 
-          <select v-model="form.estado" class="w-full border p-1" required>
+          <select v-model="form.status" class="w-full border p-1" required>
             <option value="activa">Activa</option>
             <option value="cancelada">Cancelada</option>
           </select>
@@ -220,7 +220,7 @@ const formatFecha = (cronograma) => {
             </option>
           </select>
 
-          <select v-model="form.estado" class="w-full border p-1" required>
+          <select v-model="form.status" class="w-full border p-1" required>
             <option value="activa">Activa</option>
             <option value="cancelada">Cancelada</option>
           </select>
@@ -238,6 +238,8 @@ const formatFecha = (cronograma) => {
     </div>
   </AdminLayout>
 </template>
+
+
 
 
 
