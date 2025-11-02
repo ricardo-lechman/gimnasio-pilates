@@ -6,16 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Pago;
 use App\Models\Reserva;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 
 class PagoController extends Controller
 {
     public function index()
     {
-        $pagos = Pago::with(['user', 'reserva'])->get();
+        $pagos = Pago::with(['user', 'reserva.cama', 'reserva.cronograma'])->get();
         $usuarios = User::all();
-        $reservas = Reserva::all();
+        $reservas = Reserva::with(['cama', 'cronograma'])->get();
 
         return Inertia::render('Admin/Pagos/Index', [
             'pagos' => $pagos,
@@ -66,7 +66,7 @@ class PagoController extends Controller
             'estado'     => 'required|in:pendiente,confirmado,rechazado',
         ]);
 
-        $data = $request->all();
+        $data = $request->only(['reserva_id','user_id','monto','metodo_pago','fecha_pago','estado']);
 
         if ($request->hasFile('comprobante')) {
             $data['comprobante'] = $request->file('comprobante')->store('comprobantes', 'public');
@@ -80,9 +80,9 @@ class PagoController extends Controller
     public function destroy(Pago $pago)
     {
         $pago->delete();
-
         return redirect()->route('admin.pagos.index')->with('success', 'Pago eliminado correctamente');
     }
 }
+
 
 

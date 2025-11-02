@@ -5,34 +5,34 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Pago;
 use App\Models\Reserva;
+use App\Models\User;
+use Carbon\Carbon;
 
 class PagosSeeder extends Seeder
 {
     public function run(): void
     {
-        $reserva = Reserva::all(); //  todas las reservas
+        $reservas = Reserva::all();
+        $users = User::where('role', 'user')->get();
 
-        foreach ($reserva as $reserva) {
-            $statusPago = collect(['pendiente', 'completado', 'rechazado'])->random();
-
-            $pago = Pago::create([
-                'reserva_id'  => $reserva->id,
-                'file_path'  => 'comprobante_1.pdf',
-                'verified'    => rand(0,1), 
-                'status'      => $statusPago,
-                'created_at'  => now(),
-                'updated_at'  => now(),
-            ]);
-
-            if ($statusPago === 'completado') {
-                $reserva->status = 'confirmado';
-            } elseif ($statusPago === 'rechazado') {
-                $reserva->status = 'cancelado';
-            } else {
-                $reserva->status = 'pendiente';
-            }
-
-            $reserva->save();
+        if ($reservas->isEmpty() || $users->isEmpty()) {
+            $this->command->warn('No hay reservas o usuarios para generar pagos.');
+            return;
         }
+
+        foreach ($reservas as $reserva) {
+            Pago::create([
+                'reserva_id' => $reserva->id,
+                'user_id' => $users->random()->id,
+                'monto' => rand(10000, 30000),
+                'metodo_pago' => 'transferencia',
+                'comprobante' => 'comprobantes/comprobante_' . $reserva->id . '.pdf',
+                'fecha_pago' => Carbon::now()->subDays(rand(0, 10)),
+                'estado' => 'confirmado',
+            ]);
+        }
+
+        $this->command->info('Pagos generados correctamente.');
     }
 }
+

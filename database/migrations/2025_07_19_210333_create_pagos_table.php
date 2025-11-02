@@ -6,26 +6,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('pagos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('reserva_id')->constrained()->onDelete('cascade');
-            $table->string('file_path')->nullable(); // ruta del comprobante subido
-            $table->boolean('verified')->default(false);
-            $table->string('status')->default('pendiente'); // campo agregado
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->decimal('monto', 10, 2);
+            $table->string('metodo_pago');
+            $table->string('comprobante')->nullable();
+            $table->dateTime('fecha_pago');
+            $table->enum('estado', ['pendiente', 'confirmado', 'rechazado'])->default('pendiente');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('pagos');
     }
 };
+
