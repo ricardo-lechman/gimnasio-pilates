@@ -91,19 +91,19 @@ const deleteCama = () => {
     <div class="py-6 px-4">
       <div class="flex gap-2 mb-4">
         <button
-          class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+          class="bg-black text-black px-3 py-1 rounded hover:bg-gray-700"
           @click="openAddModal"
         >
           Agregar
         </button>
         <button
-          class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+          class="bg-black text-black px-3 py-1 rounded hover:bg-gray-700"
           @click="openEditModal"
         >
           Modificar
         </button>
         <button
-          class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+          class="bg-black text-black px-3 py-1 rounded hover:bg-gray-700"
           @click="deleteCama"
         >
           Eliminar

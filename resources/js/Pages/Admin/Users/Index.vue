@@ -158,14 +158,14 @@ const deleteUser = () => {
           <div class="flex justify-end gap-2 mt-2">
             <button
               type="button"
-              class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+              class="bg-black text-black px-3 py-1 rounded hover:bg-gray-700"
               @click="showAddModal = false"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800"
+              class="bg-black text-black px-3 py-1 rounded hover:bg-gray-700"
             >
               Agregar
             </button>
