@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace App\Http\Controllers\Admin;
 
@@ -13,23 +13,43 @@ class AdminController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Users/Index', [
-            'users' => User::select('id', 'name', 'email', 'role')->get(),
+            'users' => User::select(
+                'id',
+                'name',
+                'last_name',
+                'email',
+                'role',
+                'telefono',
+                'dni',
+                'obra_social',
+                'ficha_medica'
+            )->get(),
         ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'last_name' => 'nullable|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
+            'dni' => 'required|integer|unique:users,dni',
+            'telefono' => 'required|integer',
+            'obra_social' => 'nullable|string|max:255',
+            'ficha_medica' => 'nullable|string|max:500',
         ]);
 
         User::create([
-            'name' => $validated['nombre'],
+            'name' => $validated['name'],
+            'last_name' => $validated['last_name'] ?? null,
             'email' => $validated['email'],
-            'role' => 'user', // Rol fijo "User"
             'password' => Hash::make($validated['password']),
+            'dni' => $validated['dni'],
+            'telefono' => $validated['telefono'],
+            'obra_social' => $validated['obra_social'] ?? null,
+            'ficha_medica' => $validated['ficha_medica'] ?? null,
+            'role' => 'user',
         ]);
 
         return back()->with('flash', ['message' => 'Usuario creado correctamente.']);
@@ -38,14 +58,24 @@ class AdminController extends Controller
     public function update(Request $request, User $user)
     {
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'last_name' => 'nullable|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6',
+            'dni' => 'required|integer|unique:users,dni,' . $user->id,
+            'telefono' => 'required|integer',
+            'obra_social' => 'nullable|string|max:255',
+            'ficha_medica' => 'nullable|string|max:500',
         ]);
 
         $dataToUpdate = [
-            'name' => $validated['nombre'],
+            'name' => $validated['name'],
+            'last_name' => $validated['last_name'] ?? null,
             'email' => $validated['email'],
+            'dni' => $validated['dni'],
+            'telefono' => $validated['telefono'],
+            'obra_social' => $validated['obra_social'] ?? null,
+            'ficha_medica' => $validated['ficha_medica'] ?? null,
             'role' => 'user',
         ];
 
@@ -61,7 +91,6 @@ class AdminController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
-
         return back()->with('flash', ['message' => 'Usuario eliminado correctamente.']);
     }
 }

@@ -31,42 +31,27 @@ const logout = () => {
             </Link>
           </div>
 
-          <!-- Menú principal (desktop) -->
-          <nav class="hidden md:flex items-center gap-10">
-  <Link
-    href="/admin/configuracion"
-    class="text-gray-700 hover:text-indigo-600 font-medium flex items-center"
-  >
-    Dashboard
-  </Link>
-  <Link
-    href="/admin/users"
-    class="text-gray-700 hover:text-indigo-600 font-medium flex items-center"
-  >
-    Usuarios
-  </Link>
-  <Link
-    href="/admin/pagos"
-    class="text-gray-700 hover:text-indigo-600 font-medium flex items-center"
-  >
-    Pagos
-  </Link>
-  <Link
-    href="/admin/reservas"
-    class="text-gray-700 hover:text-indigo-600 font-medium flex items-center"
-  >
-    Reservas
-  </Link>
-  <Link
-    href="/admin/cama"
-    class="text-gray-700 hover:text-indigo-600 font-medium flex items-center"
-  >
-    Cama
-  </Link>
-</nav>
+          <!-- Menú desktop (>720px) -->
+          <nav class="hidden mobile-range:hidden lg:flex items-center gap-10">
+            <Link href="/admin/configuracion" class="text-gray-700 hover:text-indigo-600 font-medium flex items-center">
+              Dashboard
+            </Link>
+            <Link href="/admin/users" class="text-gray-700 hover:text-indigo-600 font-medium flex items-center">
+              Usuarios
+            </Link>
+            <Link href="/admin/pagos" class="text-gray-700 hover:text-indigo-600 font-medium flex items-center">
+              Pagos
+            </Link>
+            <Link href="/admin/reservas" class="text-gray-700 hover:text-indigo-600 font-medium flex items-center">
+              Reservas
+            </Link>
+            <Link href="/admin/cama" class="text-gray-700 hover:text-indigo-600 font-medium flex items-center">
+              Cama
+            </Link>
+          </nav>
 
-          <!-- Logout (desktop) -->
-          <div class="hidden md:block">
+          <!-- Logout desktop (>720px) -->
+          <div class="hidden mobile-range:hidden lg:block">
             <button
               @click="logout"
               class="bg-red-100 text-red-700 px-4 py-2 rounded-md font-semibold hover:bg-red-200 transition"
@@ -75,8 +60,8 @@ const logout = () => {
             </button>
           </div>
 
-          <!-- Botón menú hamburguesa (mobile) -->
-          <div class="md:hidden">
+          <!-- Botón menú hamburguesa (320-720px) -->
+          <div class="block mobile-range:block lg:hidden">
             <button
               @click="mobileMenuOpen = !mobileMenuOpen"
               class="p-2 rounded-md text-gray-700 hover:bg-gray-200"
@@ -88,10 +73,10 @@ const logout = () => {
         </div>
       </div>
 
-      <!-- Menú desplegable mobile -->
+      <!-- Menú desplegable mobile (320-720px) -->
       <div
         v-show="mobileMenuOpen"
-        class="md:hidden bg-white shadow-md border-t border-gray-200 absolute w-full top-full left-0"
+        class="mobile-range:block lg:hidden bg-white shadow-md border-t border-gray-200 absolute w-full top-full left-0"
       >
         <nav class="flex flex-col items-center space-y-4 py-4">
           <Link href="/admin/configuracion" class="text-gray-700 hover:text-indigo-600 font-medium" @click="mobileMenuOpen = false">
@@ -110,7 +95,7 @@ const logout = () => {
             Cama
           </Link>
 
-          <!-- Logout -->
+          <!-- Logout mobile -->
           <button
             @click="logout"
             class="bg-red-100 text-red-700 px-4 py-2 rounded-md font-semibold hover:bg-red-200 transition"
@@ -127,4 +112,3 @@ const logout = () => {
     </main>
   </div>
 </template>
-
