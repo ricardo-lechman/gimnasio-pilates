@@ -34,10 +34,12 @@ const submit = () => {
     <!-- 🔹 Logo -->
     <template #logo>
       <img
-        src="/images/logo.png"   <!-- ruta directa desde public/ -->
+        src="/images/logo.png"
         alt="Logo Gimnasio Pilates"
-        class="w-24 h-24 mx-auto rounded-full shadow-lg"
+        class="w-50 h-50 mx-auto rounded-full shadow-lg"
       />
+
+
     </template>
 
     <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
