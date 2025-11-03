@@ -16,7 +16,6 @@ const logout = () => {
         <h1 class="text-xl font-bold">🏋️‍♀️ GIMNASIO PILATES</h1>
         <nav class="mt-2 space-x-4">
           <Link href="/users/users" class="hover:underline">Datos Personales</Link>
-          <Link href="/users/cronograma" class="hover:underline">Ver Cronograma</Link>
           <Link href="/users/reservas" class="hover:underline">Reservar</Link>
           <Link href="/users/pagos" class="hover:underline">Pagar</Link>
         </nav>
