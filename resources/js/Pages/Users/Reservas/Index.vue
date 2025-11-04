@@ -70,10 +70,10 @@ const formatFecha = (reserva) => {
   <UsersLayout title="Reservas">
     <div class="py-6 px-4">
       <div class="flex gap-2 mb-4">
-        <button class="bg-black text-white px-3 py-1 rounded hover:bg-gray-800" @click="openAddModal">
+        <button class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800" @click="openAddModal">
           Nueva Reserva
         </button>
-        <button class="bg-black text-white px-3 py-1 rounded hover:bg-gray-800" @click="deleteReserva">
+        <button class="bg-black text-black px-3 py-1 rounded hover:bg-gray-800" @click="deleteReserva">
           Eliminar
         </button>
       </div>
@@ -131,7 +131,7 @@ const formatFecha = (reserva) => {
 
           <div class="flex justify-end gap-2 mt-2">
             <button type="button" class="bg-gray-500 text-black px-3 py-1 rounded hover:bg-gray-600" @click="showAddModal = false">Cancelar</button>
-            <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Guardar</button>
+            <button type="submit" class="bg-green-600 text-black px-3 py-1 rounded hover:bg-green-700">Guardar</button>
           </div>
         </form>
       </div>
