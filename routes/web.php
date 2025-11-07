@@ -35,7 +35,7 @@ Route::middleware(['auth', 'verified'])->get('/dashboard', function () {
 })->name('dashboard');
 
 // ==========================================================
-// RUTAS PARA ADMINISTRADOR (Prefijo: /admin, Nombre: admin.)
+// RUTAS PARA ADMINISTRADOR
 // ==========================================================
 Route::middleware(['auth', 'verified', 'role:admin'])
     ->prefix('admin')
@@ -75,7 +75,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])
     });
 
 // ========================================================
-// RUTAS PARA USUARIOS (Prefijo: /users, Nombre: users.)
+// RUTAS PARA USUARIOS
 // ========================================================
 Route::middleware(['auth', 'verified', 'role:user'])
     ->prefix('users')
@@ -84,26 +84,22 @@ Route::middleware(['auth', 'verified', 'role:user'])
 
         Route::get('/dashboard', fn () => Inertia::render('Users/DashboardUsers'))->name('dashboardusers');
 
-        // Gestión de Perfil de Usuario
+        // Perfil de Usuario
         Route::get('/users', [UserController::class, 'index'])->name('users');
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
-
-        // Reservas de Usuario
+        // Reservas del Usuario
         Route::get('/reservas', [UserReservaController::class, 'index'])->name('reservas.index');
         Route::post('/reservas', [UserReservaController::class, 'store'])->name('reservas.store');
-        Route::put('/reservas/{reserva}', [UserReservaController::class, 'update'])->name('reservas.update');
         Route::delete('/reservas/{reserva}', [UserReservaController::class, 'destroy'])->name('reservas.destroy');
 
-        // Pagos de Usuario
-        Route::get('/pagos', fn () => Inertia::render('Users/Pagos/Index'))->name('pagos.index');
-        Route::get('/pagos/{id}', fn ($id) => Inertia::render('Users/Pagos/Show', ['id' => $id]))->name('pagos.show');
+        // Pagos del Usuario (solo listar y agregar)
+        Route::get('/pagos', [UserPagoController::class, 'index'])->name('pagos.index');
+        Route::post('/pagos', [UserPagoController::class, 'store'])->name('pagos.store');
+        Route::get('/pagos/{id}', [UserPagoController::class, 'show'])->name('pagos.show');
 
-        // Otras secciones de Usuario
+        // Cronograma
         Route::get('/cronograma', fn () => Inertia::render('Users/Cronograma/Index'))->name('cronograma.index');
     });
-
-// Aquí puedes añadir las rutas de autenticación si no están en otro archivo
-// require __DIR__.'/auth.php';

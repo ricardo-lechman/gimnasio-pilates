@@ -3,103 +3,73 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\Pago;
 use App\Models\Reserva;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class UserPagoController extends Controller
 {
+    // Mostrar lista de pagos del usuario
     public function index()
     {
-        // Pagos solo del usuario autenticado
-        $pagos = Pago::with('reserva')
-            ->where('user_id', auth()->id())
+        $user = Auth::user();
+
+        $pagos = Pago::where('user_id', $user->id)
+            ->with('reserva')
+            ->latest()
             ->get();
 
-        // Reservas solo del usuario autenticado
-        $reservas = Reserva::where('user_id', auth()->id())->get();
+        // Traemos solo reservas pendientes o confirmadas del usuario
+        $reservas = Reserva::where('user_id', $user->id)
+            ->orderBy('id', 'desc')
+            ->get();
 
-        return Inertia::render('Users/Pagos/Index', [
-            'pagos'    => $pagos,
+        return inertia('Users/Pagos/Index', [
+            'pagos' => $pagos,
             'reservas' => $reservas,
+            'user' => $user,
         ]);
     }
 
+    // Registrar nuevo pago
     public function store(Request $request)
     {
-        $request->validate([
+        $user = Auth::user();
+
+        $validated = $request->validate([
             'reserva_id' => 'required|exists:reservas,id',
-            'monto'      => 'required|numeric|min:0',
-            'metodo_pago'=> 'required|string',
-            'comprobante'=> 'nullable|file|mimes:jpg,png,pdf|max:2048',
-            'fecha_pago' => 'required|date',
-            'estado'     => 'required|in:pendiente,confirmado,rechazado',
+            'monto' => 'required|numeric|min:0',
+            'metodo_pago' => 'required|string|max:255',
+            'comprobante' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
         ]);
 
-        $path = null;
+        $comprobantePath = null;
+
         if ($request->hasFile('comprobante')) {
-            $path = $request->file('comprobante')->store('comprobantes', 'public');
+            $comprobantePath = $request->file('comprobante')->store('comprobantes', 'public');
         }
 
         Pago::create([
-            'reserva_id' => $request->reserva_id,
-            'user_id'    => auth()->id(),
-            'monto'      => $request->monto,
-            'metodo_pago'=> $request->metodo_pago,
-            'comprobante'=> $path,
-            'fecha_pago' => $request->fecha_pago,
-            'estado'     => $request->estado,
+            'reserva_id' => $validated['reserva_id'],
+            'user_id' => $user->id,
+            'monto' => $validated['monto'],
+            'metodo_pago' => $validated['metodo_pago'],
+            'comprobante' => $comprobantePath,
+            'fecha_pago' => now()->toDateString(), // solo fecha
+            'estado' => 'pendiente',
         ]);
 
-        return redirect()->route('users.pagos.index')
-            ->with('success', 'Pago registrado correctamente');
+        return redirect()->back()->with('success', 'Pago registrado correctamente.');
     }
 
-    public function update(Request $request, Pago $pago)
-    {
-        // Solo puede modificar su propio pago
-        if ($pago->user_id !== auth()->id()) {
-            abort(403, 'No autorizado.');
-        }
-
-        $request->validate([
-            'reserva_id' => 'required|exists:reservas,id',
-            'monto'      => 'required|numeric|min:0',
-            'metodo_pago'=> 'required|string',
-            'comprobante'=> 'nullable|file|mimes:jpg,png,pdf|max:2048',
-            'fecha_pago' => 'required|date',
-            'estado'     => 'required|in:pendiente,confirmado,rechazado',
-        ]);
-
-        $data = [
-            'reserva_id' => $request->reserva_id,
-            'monto'      => $request->monto,
-            'metodo_pago'=> $request->metodo_pago,
-            'fecha_pago' => $request->fecha_pago,
-            'estado'     => $request->estado,
-        ];
-
-        if ($request->hasFile('comprobante')) {
-            $data['comprobante'] = $request->file('comprobante')->store('comprobantes', 'public');
-        }
-
-        $pago->update($data);
-
-        return redirect()->route('users.pagos.index')
-            ->with('success', 'Pago actualizado correctamente');
-    }
-
-    public function destroy(Pago $pago)
-    {
-        // Solo puede eliminar su propio pago
-        if ($pago->user_id !== auth()->id()) {
-            abort(403, 'No autorizado.');
-        }
-
-        $pago->delete();
-
-        return redirect()->route('users.pagos.index')
-            ->with('success', 'Pago eliminado correctamente');
-    }
+    // Bloqueamos edición y eliminación para usuarios
+    public function update() { abort(403, 'No autorizado'); }
+    public function destroy() { abort(403, 'No autorizado'); }
 }
+
+
+
+
+
