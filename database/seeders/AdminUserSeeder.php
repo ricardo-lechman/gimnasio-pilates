@@ -13,6 +13,7 @@ class AdminUserSeeder extends Seeder
         // Admin
         User::create([
             'name' => 'Administrador',
+            'last_name' => 'Principal',
             'email' => 'admin@pilates.com',
             'password' => Hash::make('admin1234'),
             'role' => 'admin',
@@ -25,6 +26,7 @@ class AdminUserSeeder extends Seeder
         // Usuario normal
         User::create([
             'name' => 'Usuario Prueba',
+            'last_name' => 'Ejemplo',
             'email' => 'user@example.com',
             'password' => Hash::make('password'),
             'role' => 'user',

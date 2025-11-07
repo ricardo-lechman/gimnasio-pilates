@@ -14,17 +14,27 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('last_name')->nullable(); // 👈 agregado
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->rememberToken();
-            $table->foreignId('current_team_id')->nullable();
-            $table->string('profile_photo_path', 2048)->nullable();
-            $table->string('role')->default('user');
+
+            // Campos para autenticación de dos factores
+            $table->text('two_factor_secret')->nullable();
+            $table->text('two_factor_recovery_codes')->nullable();
+            $table->timestamp('two_factor_confirmed_at')->nullable();
+
+            // Campos personalizados
             $table->string('telefono')->nullable();
             $table->string('dni')->nullable();
             $table->string('obra_social')->nullable();
             $table->text('ficha_medica')->nullable();
+
+            // Rol y otros campos del sistema
+            $table->string('role')->default('user');
+            $table->rememberToken();
+            $table->foreignId('current_team_id')->nullable();
+            $table->string('profile_photo_path', 2048)->nullable();
 
             $table->timestamps();
         });

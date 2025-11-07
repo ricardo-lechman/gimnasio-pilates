@@ -85,4 +85,3 @@ class ReservaController extends Controller
         return redirect()->route('admin.reservas.index')->with('success', 'Reserva eliminada correctamente.');
     }
 }
-
