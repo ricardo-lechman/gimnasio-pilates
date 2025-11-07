@@ -32,7 +32,7 @@ const logout = () => {
           </div>
 
           <!-- Botón menú hamburguesa -->
-          <div>
+          <div class="md:hidden">
             <button
               @click="mobileMenuOpen = !mobileMenuOpen"
               class="p-2 rounded-md text-gray-700 hover:bg-gray-200"
@@ -41,54 +41,81 @@ const logout = () => {
               <span v-else>✕</span>
             </button>
           </div>
+
+          <!-- Menú escritorio -->
+          <nav class="hidden md:flex space-x-4">
+            <Link href="/admin/configuracion" class="px-4 py-2 rounded-md text-gray-700 hover:text-indigo-600">
+              Dashboard
+            </Link>
+            <Link href="/admin/users" class="px-4 py-2 rounded-md text-gray-700 hover:text-indigo-600">
+              Usuarios
+            </Link>
+            <Link href="/admin/pagos" class="px-4 py-2 rounded-md text-gray-700 hover:text-indigo-600">
+              Pagos
+            </Link>
+            <Link href="/admin/reservas" class="px-4 py-2 rounded-md text-gray-700 hover:text-indigo-600">
+              Reservas
+            </Link>
+            <Link href="/admin/cama" class="px-4 py-2 rounded-md text-gray-700 hover:text-indigo-600">
+              Cama
+            </Link>
+            <button
+              @click="logout"
+              class="px-4 py-2 rounded-md text-red-700 font-semibold hover:text-red-900 transition"
+            >
+              🚪 Cerrar sesión
+            </button>
+          </nav>
         </div>
       </div>
 
-      <!-- Menú desplegable -->
+      <!-- Menú móvil -->
       <div
         v-show="mobileMenuOpen"
-        class="bg-white shadow-md border-t border-gray-200 absolute w-full top-full left-0"
+        class="md:hidden bg-white shadow-md border-t border-gray-200 absolute w-full top-full left-0"
       >
-        <nav class="flex flex-col items-center space-y-4 py-4">
+        <nav class="flex flex-col items-center space-y-3 py-4">
           <Link
             href="/admin/configuracion"
-            class="text-gray-700 hover:text-indigo-600 font-medium"
+            class="w-full text-center px-4 py-2 rounded-md text-gray-700 hover:text-indigo-600"
             @click="mobileMenuOpen = false"
           >
             Dashboard
           </Link>
           <Link
             href="/admin/users"
-            class="text-gray-700 hover:text-indigo-600 font-medium"
+            class="w-full text-center px-4 py-2 rounded-md text-gray-700 hover:text-indigo-600"
             @click="mobileMenuOpen = false"
           >
             Usuarios
           </Link>
           <Link
             href="/admin/pagos"
-            class="text-gray-700 hover:text-indigo-600 font-medium"
+            class="w-full text-center px-4 py-2 rounded-md text-gray-700 hover:text-indigo-600"
             @click="mobileMenuOpen = false"
           >
             Pagos
           </Link>
           <Link
             href="/admin/reservas"
-            class="text-gray-700 hover:text-indigo-600 font-medium"
+            class="w-full text-center px-4 py-2 rounded-md text-gray-700 hover:text-indigo-600"
             @click="mobileMenuOpen = false"
           >
             Reservas
           </Link>
           <Link
             href="/admin/cama"
-            class="text-gray-700 hover:text-indigo-600 font-medium"
+            class="w-full text-center px-4 py-2 rounded-md text-gray-700 hover:text-indigo-600"
             @click="mobileMenuOpen = false"
           >
             Cama
           </Link>
 
+          <hr class="border-gray-300 w-4/5 my-2" />
+
           <button
             @click="logout"
-            class="bg-red-100 text-red-700 px-4 py-2 rounded-md font-semibold hover:bg-red-200 transition"
+            class="w-full text-center px-4 py-2 rounded-md text-red-700 font-semibold hover:text-red-900 transition"
           >
             🚪 Cerrar sesión
           </button>
