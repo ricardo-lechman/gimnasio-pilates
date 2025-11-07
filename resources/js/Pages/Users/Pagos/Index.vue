@@ -1,7 +1,7 @@
 <script setup>
 import UserLayout from "@/Layouts/UsersLayout.vue";
 import { Head, router } from "@inertiajs/vue3";
-import { ref, reactive } from "vue";
+import { ref, reactive, watch } from "vue";
 
 const props = defineProps({
   pagos: Array,
@@ -12,29 +12,41 @@ const props = defineProps({
 const showAddModal = ref(false);
 
 const form = reactive({
-  reserva_id: "",
-  monto: "",
+  reserva_id: null,
   metodo_pago: "",
   comprobante: null,
+  monto: "0.00",
 });
 
 // Abrir modal
 const openAddModal = () => {
   Object.assign(form, {
-    reserva_id: "",
-    monto: "",
+    reserva_id: null,
     metodo_pago: "",
     comprobante: null,
+    monto: "0.00",
   });
   showAddModal.value = true;
 };
 
+watch(
+  () => form.reserva_id,
+  (newVal) => {
+    const reserva = props.reservas.find(r => r.id === newVal);
+    if (reserva && typeof reserva.monto === "number") {
+      form.monto = reserva.monto.toFixed(2);
+    } else {
+      form.monto = "3.500";
+    }
+  }
+);
+
 // Enviar formulario
 const submitAdd = () => {
   const data = new FormData();
-  for (let key in form) {
-    if (form[key] !== null) data.append(key, form[key]);
-  }
+  data.append('reserva_id', form.reserva_id);
+  data.append('metodo_pago', form.metodo_pago);
+  if (form.comprobante) data.append('comprobante', form.comprobante);
 
   router.post(route("users.pagos.store"), data, {
     forceFormData: true,
@@ -83,9 +95,7 @@ const submitAdd = () => {
           <tbody class="bg-white divide-y divide-gray-200">
             <tr v-for="pago in props.pagos" :key="pago.id">
               <td class="px-4 py-2">#{{ pago.id }}</td>
-              <td class="px-4 py-2">
-                Reserva #{{ pago.reserva_id }}
-              </td>
+              <td class="px-4 py-2">Reserva #{{ pago.reserva_id }}</td>
               <td class="px-4 py-2">${{ pago.monto }}</td>
               <td class="px-4 py-2">{{ pago.metodo_pago }}</td>
               <td class="px-4 py-2">
@@ -116,7 +126,7 @@ const submitAdd = () => {
       </div>
     </div>
 
-    <!-- Modal Agregar -->
+    <!-- Modal Agregar Pago -->
     <div
       v-if="showAddModal"
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
@@ -124,32 +134,47 @@ const submitAdd = () => {
       <div class="bg-white p-6 rounded w-96">
         <h3 class="text-lg font-semibold mb-4">Agregar Pago</h3>
         <form @submit.prevent="submitAdd" class="space-y-2">
-          <select v-model="form.reserva_id" class="w-full border p-1" required>
-            <option disabled value="">Seleccione una reserva</option>
+
+          <select v-model="form.reserva_id" class="w-full border p-1 text-gray-700" required>
+            <option disabled value="null" selected hidden>Seleccione una reserva</option>
             <option
               v-for="r in props.reservas"
               :key="r.id"
-              :value="r.id"
+              :value="String(r.id)"
             >
               Reserva #{{ r.id }}
             </option>
           </select>
 
+          <!-- Monto mostrado (solo lectura) -->
           <input
-            v-model="form.monto"
-            type="number"
-            placeholder="Monto"
-            class="w-full border p-1"
-            required
+            type="text"
+            :value="`$${form.monto}`"
+            class="w-full border p-1 bg-gray-100 cursor-not-allowed"
+            readonly
           />
 
-          <input
-            v-model="form.metodo_pago"
-            placeholder="Método de pago (Ej: Transferencia, Efectivo)"
-            class="w-full border p-1"
-            required
-          />
+          <!-- Método de pago con botones -->
+          <div class="flex gap-2">
+            <button
+              type="button"
+              :class="form.metodo_pago === 'efectivo' ? 'bg-green-600 text-black' : 'bg-gray-200 text-black'"
+              class="px-3 py-1 rounded flex-1"
+              @click="form.metodo_pago = 'efectivo'"
+            >
+              Efectivo
+            </button>
+            <button
+              type="button"
+              :class="form.metodo_pago === 'transferencia' ? 'bg-green-600 text-black' : 'bg-gray-200 text-black'"
+              class="px-3 py-1 rounded flex-1"
+              @click="form.metodo_pago = 'transferencia'"
+            >
+              Transferencia
+            </button>
+          </div>
 
+          <!-- Comprobante -->
           <input
             type="file"
             @change="e => (form.comprobante = e.target.files[0])"
@@ -157,6 +182,7 @@ const submitAdd = () => {
             required
           />
 
+          <!-- Botones -->
           <div class="flex justify-end gap-2 mt-2">
             <button
               type="button"
@@ -177,8 +203,3 @@ const submitAdd = () => {
     </div>
   </UserLayout>
 </template>
-
-
-
-
-

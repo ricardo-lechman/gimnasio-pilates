@@ -82,7 +82,7 @@ const submitEdit = () => {
   for (let key in form) {
     if (form[key] !== null) data.append(key, form[key]);
   }
-  data.append("_method", "PUT"); // 👈 clave para que Laravel acepte el método
+  data.append("_method", "PUT");
 
   router.post(route("admin.pagos.update", selectedPago.value), data, {
     forceFormData: true,
@@ -187,10 +187,7 @@ const deletePago = () => {
     </div>
 
     <!-- Modal Agregar -->
-    <div
-      v-if="showAddModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
+    <div v-if="showAddModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white p-6 rounded w-96">
         <h3 class="text-lg font-semibold mb-4">Agregar Pago</h3>
         <form @submit.prevent="submitAdd" class="space-y-2">
@@ -203,7 +200,27 @@ const deletePago = () => {
             <option v-for="r in props.reservas" :key="r.id" :value="r.id">Reserva #{{ r.id }}</option>
           </select>
           <input v-model="form.monto" type="number" placeholder="Monto" class="w-full border p-1" required />
-          <input v-model="form.metodo_pago" placeholder="Método de pago" class="w-full border p-1" required />
+          
+          <!-- Método de pago con botones -->
+          <div class="flex gap-2">
+            <button
+              type="button"
+              :class="form.metodo_pago === 'efectivo' ? 'bg-green-600 text-black' : 'bg-gray-200 text-black'"
+              class="px-3 py-1 rounded flex-1"
+              @click="form.metodo_pago = 'efectivo'"
+            >
+              Efectivo
+            </button>
+            <button
+              type="button"
+              :class="form.metodo_pago === 'transferencia' ? 'bg-green-600 text-black' : 'bg-gray-200 text-black'"
+              class="px-3 py-1 rounded flex-1"
+              @click="form.metodo_pago = 'transferencia'"
+            >
+              Transferencia
+            </button>
+          </div>
+
           <input v-model="form.fecha_pago" type="datetime-local" class="w-full border p-1" required />
           <select v-model="form.estado" class="w-full border p-1" required>
             <option value="pendiente">Pendiente</option>
@@ -225,10 +242,7 @@ const deletePago = () => {
     </div>
 
     <!-- Modal Editar -->
-    <div
-      v-if="showEditModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
+    <div v-if="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white p-6 rounded w-96">
         <h3 class="text-lg font-semibold mb-4">Editar Pago</h3>
         <form @submit.prevent="submitEdit" class="space-y-2">
@@ -241,7 +255,27 @@ const deletePago = () => {
             <option v-for="r in props.reservas" :key="r.id" :value="r.id">Reserva #{{ r.id }}</option>
           </select>
           <input v-model="form.monto" type="number" placeholder="Monto" class="w-full border p-1" required />
-          <input v-model="form.metodo_pago" placeholder="Método de pago" class="w-full border p-1" required />
+          
+          <!-- Método de pago con botones -->
+          <div class="flex gap-2">
+            <button
+              type="button"
+              :class="form.metodo_pago === 'efectivo' ? 'bg-green-600 text-black' : 'bg-gray-200 text-black'"
+              class="px-3 py-1 rounded flex-1"
+              @click="form.metodo_pago = 'efectivo'"
+            >
+              Efectivo
+            </button>
+            <button
+              type="button"
+              :class="form.metodo_pago === 'transferencia' ? 'bg-green-600 text-black' : 'bg-gray-200 text-black'"
+              class="px-3 py-1 rounded flex-1"
+              @click="form.metodo_pago = 'transferencia'"
+            >
+              Transferencia
+            </button>
+          </div>
+
           <input v-model="form.fecha_pago" type="datetime-local" class="w-full border p-1" required />
           <select v-model="form.estado" class="w-full border p-1" required>
             <option value="pendiente">Pendiente</option>
@@ -263,7 +297,3 @@ const deletePago = () => {
     </div>
   </AdminLayout>
 </template>
-
-
-
-

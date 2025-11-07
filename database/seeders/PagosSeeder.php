@@ -24,7 +24,7 @@ class PagosSeeder extends Seeder
             Pago::create([
                 'reserva_id' => $reserva->id,
                 'user_id' => $users->random()->id,
-                'monto' => rand(10000, 30000),
+                'monto' => 3500,
                 'metodo_pago' => 'transferencia',
                 'comprobante' => 'comprobantes/comprobante_' . $reserva->id . '.pdf',
                 'fecha_pago' => Carbon::now()->subDays(rand(0, 10)),
@@ -32,7 +32,7 @@ class PagosSeeder extends Seeder
             ]);
         }
 
-        $this->command->info('Pagos generados correctamente.');
+        $this->command->info('Pagos generados correctamente con monto fijo de 3500.');
     }
 }
 

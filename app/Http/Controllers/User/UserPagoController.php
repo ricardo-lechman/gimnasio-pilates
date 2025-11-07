@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\Models\Pago;
 use App\Models\Reserva;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class UserPagoController extends Controller
 {
@@ -21,7 +20,6 @@ class UserPagoController extends Controller
             ->latest()
             ->get();
 
-        // Traemos solo reservas pendientes o confirmadas del usuario
         $reservas = Reserva::where('user_id', $user->id)
             ->orderBy('id', 'desc')
             ->get();
@@ -33,20 +31,22 @@ class UserPagoController extends Controller
         ]);
     }
 
-    // Registrar nuevo pago
+    // Registrar nuevo pago (monto definido por admin / reserva)
     public function store(Request $request)
     {
         $user = Auth::user();
 
         $validated = $request->validate([
             'reserva_id' => 'required|exists:reservas,id',
-            'monto' => 'required|numeric|min:0',
             'metodo_pago' => 'required|string|max:255',
             'comprobante' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
         ]);
 
-        $comprobantePath = null;
+        // Definir monto automáticamente según la reserva
+        $reserva = Reserva::findOrFail($validated['reserva_id']);
+        $monto = $reserva->precio ?? 0; // precio definido por admin en reserva
 
+        $comprobantePath = null;
         if ($request->hasFile('comprobante')) {
             $comprobantePath = $request->file('comprobante')->store('comprobantes', 'public');
         }
@@ -54,10 +54,10 @@ class UserPagoController extends Controller
         Pago::create([
             'reserva_id' => $validated['reserva_id'],
             'user_id' => $user->id,
-            'monto' => $validated['monto'],
+            'monto' => $monto,
             'metodo_pago' => $validated['metodo_pago'],
             'comprobante' => $comprobantePath,
-            'fecha_pago' => now()->toDateString(), // solo fecha
+            'fecha_pago' => now()->toDateString(),
             'estado' => 'pendiente',
         ]);
 
@@ -68,8 +68,5 @@ class UserPagoController extends Controller
     public function update() { abort(403, 'No autorizado'); }
     public function destroy() { abort(403, 'No autorizado'); }
 }
-
-
-
 
 
