@@ -285,10 +285,10 @@ const deletePago = () => {
           <input type="file" @change="e => (form.comprobante = e.target.files[0])" class="w-full border p-1" />
 
           <div class="flex justify-end gap-2 mt-2">
-            <button type="button" class="bg-gray-400 text-white px-3 py-1 rounded" @click="showEditModal = false">
+            <button type="button" class="bg-gray-400 text-black px-3 py-1 rounded" @click="showEditModal = false">
               Cancelar
             </button>
-            <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-500">
+            <button type="submit" class="bg-blue-600 text-black px-3 py-1 rounded hover:bg-blue-500">
               Guardar
             </button>
           </div>
