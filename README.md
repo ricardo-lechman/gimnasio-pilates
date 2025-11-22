@@ -41,10 +41,15 @@ Incluye paneles diferenciados para **administradores** y **usuarios**, control d
 
 ---
 
+##  Video explicativo de las funcionalidades de Sistema
+    https://youtu.be/eGSvFQWxFvs
+
 ## ⚙️ Instalación y configuración
 
 ### 1️⃣ Clonar el repositorio
 ```bash
 git clone https://github.com/tuusuario/nombre-del-proyecto.git
 cd nombre-del-proyecto
+
+
 
